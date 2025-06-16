@@ -1,0 +1,61 @@
+# .github/workflows/build-android.yml
+name: 🚀 Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Permite executar manualmente
+
+jobs:
+  build:
+    name: 📱 Build APK
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🏗 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🏗 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 🏗 Setup EAS CLI
+      uses: expo/expo-github-action@v8
+      with:
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+
+    - name: 📦 Install dependencies
+      run: npm ci
+
+    - name: 🚀 Build APK
+      run: eas build --platform android --profile preview --non-interactive
+
+    - name: 📋 Get build info
+      id: build
+      run: |
+        BUILD_ID=$(eas build:list --platform android --status finished --limit 1 --json | jq -r '.[0].id')
+        BUILD_URL=$(eas build:list --platform android --status finished --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
+        echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+        echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
+
+    - name: 💬 Comment build result
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const buildUrl = '${{ steps.build.outputs.build_url }}';
+          const buildId = '${{ steps.build.outputs.build_id }}';
+          
+          github.rest.repos.createCommitComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            commit_sha: context.sha,
+            body: `🎉 **APK Build Concluído!**
+            
+            📱 **Download:** ${buildUrl}
+            🆔 **Build ID:** ${buildId}
+            
+            Escaneie o QR code ou baixe diretamente o APK!`
+          });
