@@ -7,16 +7,32 @@
     "icon": "./assets/images/icon.png",
     "scheme": "aplicativoponto",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.bmz.ponto",
       "infoPlist": {
         "NSCameraUsageDescription": "Este aplicativo precisa acessar a câmera para tirar fotos de ponto.",
         "NSMicrophoneUsageDescription": "Este aplicativo pode usar o microfone se necessário pela câmera.",
         "NSLocationWhenInUseUsageDescription": "Este aplicativo precisa da sua localização para registrar o ponto corretamente.",
-        "ITSAppUsesNonExemptEncryption": false
-      },
-      "bundleIdentifier": "com.bmz.ponto"
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSAllowsArbitraryLoadsInWebContent": true,
+          "NSAllowsLocalNetworking": true,
+          "NSExceptionDomains": {
+            "192.168.88.99": {
+              "NSExceptionAllowsInsecureHTTPLoads": true,
+              "NSExceptionMinimumTLSVersion": "TLSv1.0",
+              "NSIncludesSubdomains": true
+            },
+            "localhost": {
+              "NSExceptionAllowsInsecureHTTPLoads": true,
+              "NSExceptionMinimumTLSVersion": "TLSv1.0"
+            }
+          }
+        }
+      }
     },
     "android": {
       "package": "com.anonymous.APLICATIVO_PONTO",
@@ -34,7 +50,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "networkSecurityConfig": "./network-security-config.xml"
     },
     "web": {
       "bundler": "metro",

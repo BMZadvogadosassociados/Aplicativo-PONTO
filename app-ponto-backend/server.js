@@ -82,7 +82,7 @@ app.get('/rotas', (req, res) => {
       "🔧 GET /api/admin/relatorio/:tipo - Gerar relatórios",
       "🖥️ GET /painel - Painel RH completo"
     ],
-    ip_servidor: "192.168.88.181:3000",
+    ip_servidor: "192.168.88.99:3000",
     versao: "1.0.0",
     novas_funcionalidades: [
       "🔧 Atualização de perfil do usuário",
