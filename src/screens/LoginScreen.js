@@ -256,6 +256,87 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+
+<View style={{padding: 20}}>
+  <TouchableOpacity 
+    style={{
+      backgroundColor: '#FF6B35',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+      marginBottom: 10
+    }}
+    onPress={() => {
+      // Teste 1: Super básico
+      fetch('http://192.168.88.99:3000/health')
+        .then(response => {
+          Alert.alert('Teste 1', `Status: ${response.status} - ${response.ok ? 'OK' : 'ERRO'}`);
+          return response.json();
+        })
+        .then(data => {
+          Alert.alert('Resposta', JSON.stringify(data).substring(0, 100));
+        })
+        .catch(error => {
+          Alert.alert('Erro Teste 1', error.message);
+        });
+    }}
+  >
+    <Text style={{color: 'white', fontWeight: 'bold'}}>🔥 TESTE 1: FETCH DIRETO</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity 
+    style={{
+      backgroundColor: '#4ECDC4',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+      marginBottom: 10
+    }}
+    onPress={async () => {
+      try {
+        const resultado = await ApiService.testeRapidoBuild();
+        Alert.alert('Teste 2', JSON.stringify(resultado, null, 2));
+      } catch (error) {
+        Alert.alert('Erro Teste 2', error.message);
+      }
+    }}
+  >
+    <Text style={{color: 'white', fontWeight: 'bold'}}>⚡ TESTE 2: API RÁPIDO</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity 
+    style={{
+      backgroundColor: '#45B7D1',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center'
+    }}
+    onPress={async () => {
+      try {
+        const diagnostico = await ApiService.diagnosticarConexaoBuild();
+        console.log('🔬 Diagnóstico completo:', diagnostico);
+        
+        const resumo = `
+Ambiente: ${diagnostico.ambiente}
+URLs testadas: ${diagnostico.totalTestadas}
+Funcionando: ${diagnostico.funcionando}
+Sucesso: ${diagnostico.sucesso}
+URL escolhida: ${diagnostico.urlFuncionando || 'NENHUMA'}
+        `;
+        
+        Alert.alert('Diagnóstico Completo', resumo);
+      } catch (error) {
+        Alert.alert('Erro Diagnóstico', error.message);
+      }
+    }}
+  >
+    <Text style={{color: 'white', fontWeight: 'bold'}}>🔬 TESTE 3: DIAGNÓSTICO</Text>
+  </TouchableOpacity>
+</View>
+
+
+
+
           <View style={styles.biometriaInfo}>
             <Text style={styles.biometriaInfoTexto}>
               💡 Habilite a biometria nas configurações para login mais rápido

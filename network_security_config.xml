@@ -1,14 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- Configuração para permitir HTTP em domínios específicos -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">192.168.88.99</domain>
+        <!-- Seu servidor principal -->
+        <domain includeSubdomains="false">192.168.88.99</domain>
+        
+        <!-- IPs de fallback -->
+        <domain includeSubdomains="false">192.168.1.100</domain>
+        <domain includeSubdomains="false">192.168.0.100</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        
+        <!-- Localhost para desenvolvimento -->
         <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
+        
+        <!-- Redes locais comuns -->
+        <domain includeSubdomains="true">192.168.1.0/24</domain>
+        <domain includeSubdomains="true">192.168.0.0/24</domain>
+        <domain includeSubdomains="true">192.168.88.0/24</domain>
+        <domain includeSubdomains="true">10.0.0.0/8</domain>
     </domain-config>
-    <base-config cleartextTrafficPermitted="true">
+    
+    <!-- Configuração base - ainda permitir HTTPS normalmente -->
+    <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system"/>
         </trust-anchors>
     </base-config>
+    
+    <!-- Debug - remover em produção final -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="user"/>
+        </trust-anchors>
+    </debug-overrides>
 </network-security-config>

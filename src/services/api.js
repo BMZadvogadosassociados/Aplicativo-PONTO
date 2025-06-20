@@ -5,15 +5,7 @@ import * as Network from 'expo-network';
 // ✅ CONFIGURAÇÃO DINÂMICA DE IP MELHORADA
 const getApiBaseUrl = () => {
   if (__DEV__) {
-    // Lista de IPs para testar em ordem de prioridade
-    const possibleIPs = [
-      '192.168.88.99',  // Seu IP fixo atual
-      '192.168.1.100',  // Outros IPs comuns da sua rede
-      '192.168.0.100',
-      '10.0.0.100'
-    ];
-    
-    // Tentar detectar do Expo
+    // Em desenvolvimento (Expo Go)
     const debuggerHost = Constants.expoConfig?.hostUri
       ? Constants.expoConfig.hostUri.split(':').shift()
       : null;
@@ -22,34 +14,36 @@ const getApiBaseUrl = () => {
         debuggerHost !== 'localhost' && 
         debuggerHost !== '127.0.0.1' &&
         !debuggerHost.includes('exp://')) {
-      console.log('🔍 Usando IP do debugger Expo:', debuggerHost);
+      console.log('🔍 DEV: Usando IP do debugger Expo:', debuggerHost);
       return `http://${debuggerHost}:3000`;
     }
     
-    // Fallback para IP fixo conhecido
-    console.log('🔍 Usando IP fixo da rede local');
+    console.log('🔍 DEV: Usando IP fixo');
     return 'http://192.168.88.99:3000';
   }
   
-  // Em produção
-  return 'https://seu-dominio.com';
+  // ✅ EM PRODUÇÃO/BUILD - Use IP fixo conhecido da sua rede
+  console.log('🏗️ BUILD: Usando IP fixo de produção');
+  return 'http://192.168.88.99:3000';
 };
 
-const API_BASE_URL = getApiBaseUrl();
-
 class ApiService {
-  
   constructor() {
-    this.baseUrl = API_BASE_URL;
+    this.baseUrl = getApiBaseUrl();
     this.fallbackUrls = [
       'http://192.168.88.99:3000',
       'http://192.168.1.100:3000', 
       'http://192.168.0.100:3000',
-      'http://10.0.2.2:3000' // Android emulator
+      'http://10.0.2.2:3000', // Android emulator
+      'http://localhost:3000'  // Fallback local
     ];
-    console.log('🌐 ApiService inicializado com URL:', this.baseUrl);
+    
+    console.log('🌐 ApiService inicializado');
+    console.log('📱 Ambiente:', __DEV__ ? 'DESENVOLVIMENTO' : 'PRODUÇÃO');
+    console.log('🌐 URL principal:', this.baseUrl);
     console.log('🔄 URLs de fallback:', this.fallbackUrls);
   }
+
 
   // ✅ TESTAR MÚLTIPLAS URLS
   async testarUrls() {
@@ -141,21 +135,25 @@ class ApiService {
   }
 
   // ✅ VERIFICAR CONECTIVIDADE COM FALLBACK DE URLS
+   // ✅ VERIFICAÇÃO MELHORADA PARA BUILD
   async verificarConectividade() {
     try {
       console.log('🔍 Verificando conectividade...');
+      console.log('📱 Ambiente:', __DEV__ ? 'DEV' : 'BUILD');
       console.log('🌐 URL base atual:', this.baseUrl);
       
-      // Primeiro verificar rede
+      // Verificar rede primeiro
       await this.verificarRedeDisponivel();
       
-      // Tentar conectar na URL atual primeiro
+      // ✅ TENTAR URL ATUAL COM TIMEOUT MENOR EM BUILD
+      const timeoutDuration = __DEV__ ? 5000 : 3000; // Timeout menor em build
+      
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
           controller.abort();
           console.log('⏰ Timeout na URL atual');
-        }, 5000);
+        }, timeoutDuration);
         
         const response = await fetch(`${this.baseUrl}/health`, {
           signal: controller.signal,
@@ -175,8 +173,9 @@ class ApiService {
         }
       } catch (error) {
         console.log('⚠️ URL atual falhou, tentando fallbacks...');
+        console.log('❌ Erro específico:', error.message);
         
-        // Se a URL atual falhar, testar todas as URLs
+        // ✅ TESTAR FALLBACKS COM MÉTODO MAIS AGRESSIVO
         const urlFuncionando = await this.testarUrls();
         
         const response = await fetch(`${urlFuncionando}/health`);
@@ -189,24 +188,24 @@ class ApiService {
     } catch (error) {
       console.error('❌ Falha total de conectividade:', error);
       
-      // Mensagens mais específicas baseadas no tipo de erro
-      if (error.name === 'AbortError') {
-        throw new Error('Timeout: Nenhum servidor respondeu em tempo hábil');
-      }
-      
-      if (error.message.includes('Network request failed') || 
-          error.message.includes('fetch')) {
-        throw new Error(`Erro de rede: Nenhum servidor acessível. URLs testadas: ${[this.baseUrl, ...this.fallbackUrls].join(', ')}`);
-      }
-      
-      if (error.message.includes('Sem conexão') || 
-          error.message.includes('Internet não está acessível')) {
-        throw new Error('Sem conexão com a internet. Verifique sua rede WiFi/dados móveis');
+      // ✅ DIAGNÓSTICO ESPECÍFICO PARA BUILD
+      if (!__DEV__) {
+        console.error('🏗️ DIAGNÓSTICO BUILD:');
+        console.error('- Verifique se usesCleartextTraffic está true');
+        console.error('- Verifique networkSecurityConfig');
+        console.error('- Teste se o servidor está acessível na rede');
+        console.error('- URLs testadas:', [this.baseUrl, ...this.fallbackUrls]);
       }
       
       throw error;
     }
   }
+
+
+
+  
+  
+
 
   // ✅ FAZER REQUISIÇÃO COM VERIFICAÇÃO MELHORADA
   async makeRequest(endpoint, options = {}) {
@@ -315,6 +314,25 @@ class ApiService {
       throw error;
     }
   }
+
+  async cadastrar(dadosUsuario) {
+  try {
+    console.log('📝 Iniciando cadastro para:', dadosUsuario.email);
+    console.log('🌐 Conectando em:', this.baseUrl);
+    
+    const response = await this.makeRequest('/auth/cadastrar', {
+      method: 'POST',
+      body: JSON.stringify(dadosUsuario),
+    });
+
+    console.log('✅ Cadastro realizado:', response.success);
+    return response;
+    
+  } catch (error) {
+    console.error('❌ Erro no cadastro:', error.message);
+    throw error;
+  }
+}
 
   async verificarToken() {
     try {
@@ -566,6 +584,151 @@ class ApiService {
     }
   }
 
+  async diagnosticarConexaoBuild() {
+  console.log('🔬 === DIAGNÓSTICO BUILD ===');
+  console.log('📱 Ambiente:', __DEV__ ? 'DESENVOLVIMENTO' : 'BUILD APK');
+  console.log('🌐 URL principal:', this.baseUrl);
+  console.log('📡 Constants disponível:', !!Constants);
+  console.log('🔌 Network disponível:', !!Network);
+  
+  const resultados = {
+    ambiente: __DEV__ ? 'DEV' : 'BUILD',
+    urlPrincipal: this.baseUrl,
+    testeUrls: [],
+    rede: null,
+    erro: null
+  };
+  
+  try {
+    // Testar estado da rede
+    console.log('📶 Testando estado da rede...');
+    const networkState = await Network.getNetworkStateAsync();
+    resultados.rede = {
+      connected: networkState.isConnected,
+      internet: networkState.isInternetReachable,
+      type: networkState.type
+    };
+    console.log('📶 Estado da rede:', resultados.rede);
+    
+    // Testar cada URL individualmente com timeout pequeno
+    const urlsParaTestar = [this.baseUrl, ...this.fallbackUrls];
+    
+    for (const url of urlsParaTestar) {
+      const testeUrl = { url, status: null, tempo: null, erro: null, sucesso: false };
+      
+      try {
+        console.log(`🧪 Testando: ${url}`);
+        const inicio = Date.now();
+        
+        // Timeout bem pequeno para build
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+          console.log(`⏰ Timeout em ${url}`);
+        }, 2000); // 2 segundos apenas
+        
+        const response = await fetch(`${url}/health`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        const tempo = Date.now() - inicio;
+        
+        testeUrl.status = response.status;
+        testeUrl.tempo = tempo;
+        testeUrl.sucesso = response.ok;
+        
+        console.log(`${response.ok ? '✅' : '❌'} ${url} - ${response.status} (${tempo}ms)`);
+        
+        if (response.ok) {
+          try {
+            const data = await response.json();
+            testeUrl.resposta = data;
+            console.log('📄 Resposta:', data?.message || 'OK');
+            
+            // Se encontrou uma URL funcionando, atualizar a base
+            if (!resultados.urlFuncionando) {
+              resultados.urlFuncionando = url;
+              this.baseUrl = url; // Atualizar URL base
+            }
+          } catch (jsonError) {
+            console.log('⚠️ Erro ao ler JSON da resposta');
+            testeUrl.erro = 'Erro ao ler JSON';
+          }
+        }
+        
+      } catch (error) {
+        testeUrl.erro = error.message;
+        console.log(`❌ ${url} - ${error.message}`);
+        
+        if (error.name === 'AbortError') {
+          testeUrl.erro = 'Timeout';
+        }
+      }
+      
+      resultados.testeUrls.push(testeUrl);
+    }
+    
+    // Resultado final
+    const urlsFuncionando = resultados.testeUrls.filter(t => t.sucesso);
+    resultados.sucesso = urlsFuncionando.length > 0;
+    resultados.totalTestadas = resultados.testeUrls.length;
+    resultados.funcionando = urlsFuncionando.length;
+    
+    console.log('🎯 === RESULTADO FINAL ===');
+    console.log(`✅ URLs funcionando: ${urlsFuncionando.length}/${resultados.totalTestadas}`);
+    console.log(`🌐 URL escolhida: ${resultados.urlFuncionando || 'NENHUMA'}`);
+    console.log('===========================');
+    
+    return resultados;
+    
+  } catch (error) {
+    console.error('❌ Erro no diagnóstico:', error);
+    resultados.erro = error.message;
+    resultados.sucesso = false;
+    return resultados;
+  }
+}
+
+// ✅ MÉTODO SIMPLIFICADO PARA TESTE RÁPIDO
+async testeRapidoBuild() {
+  try {
+    console.log('⚡ Teste rápido iniciado...');
+    
+    // Teste direto na URL principal
+    const response = await fetch(`${this.baseUrl}/health`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        sucesso: true,
+        url: this.baseUrl,
+        status: response.status,
+        resposta: data
+      };
+    } else {
+      return {
+        sucesso: false,
+        url: this.baseUrl,
+        status: response.status,
+        erro: `HTTP ${response.status}`
+      };
+    }
+    
+  } catch (error) {
+    return {
+      sucesso: false,
+      url: this.baseUrl,
+      erro: error.message
+    };
+  }
+}
+
   // ==================== UTILITÁRIOS ====================
   async testarConexao() {
     try {
@@ -661,5 +824,8 @@ class ApiService {
     return debug;
   }
 }
+
+
+
 
 export default new ApiService();
