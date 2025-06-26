@@ -2,10 +2,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Network from 'expo-network';
 
-// ✅ CONFIGURAÇÃO DINÂMICA DE IP MELHORADA
+// ✅ CONFIGURAÇÃO OTIMIZADA PARA IP PÚBLICO
+
 const getApiBaseUrl = () => {
   if (__DEV__) {
-    // Em desenvolvimento (Expo Go)
+    // EM DESENVOLVIMENTO - usar IP local com porta específica
     const debuggerHost = Constants.expoConfig?.hostUri
       ? Constants.expoConfig.hostUri.split(':').shift()
       : null;
@@ -18,34 +19,36 @@ const getApiBaseUrl = () => {
       return `http://${debuggerHost}:3000`;
     }
     
-    console.log('🔍 DEV: Usando IP fixo');
-    return 'http://192.168.88.99:3000';
+    console.log('🔍 DEV: Usando IP local');
+    return 'http://192.168.88.22:3000';
   }
   
-  // ✅ EM PRODUÇÃO/BUILD - Use IP fixo conhecido da sua rede
-  console.log('🏗️ BUILD: Usando IP fixo de produção');
-  return 'http://192.168.88.99:3000';
+  // ✅ EM PRODUÇÃO/BUILD - usar IP público com HAIRPIN NAT (porta 80)
+  console.log('🏗️ BUILD: Usando IP público com Hairpin NAT');
+  return 'http://168.197.64.215'; // Porta 80 via hairpin NAT
 };
 
+// ✅ URLs ORGANIZADAS COM HAIRPIN NAT
 class ApiService {
   constructor() {
     this.baseUrl = getApiBaseUrl();
     this.fallbackUrls = [
-      'http://192.168.88.99:3000',
-      'http://192.168.1.100:3000', 
-      'http://192.168.0.100:3000',
-      'http://10.0.2.2:3000', // Android emulator
-      'http://localhost:3000'  // Fallback local
+      'http://168.197.64.215',        // IP público porta 80 (via hairpin NAT)
+      'https://168.197.64.215',       // IP público porta 443 (via hairpin NAT)
+      'http://168.197.64.215:3000',   // IP público porta 3000 (direto)
+      'https://168.197.64.215:3001',  // IP público porta 3001 (direto)
+      'http://192.168.88.22:3000',    // IP local para desenvolvimento
+      'https://192.168.88.22:3001',   // IP local HTTPS para desenvolvimento
     ];
     
     console.log('🌐 ApiService inicializado');
     console.log('📱 Ambiente:', __DEV__ ? 'DESENVOLVIMENTO' : 'PRODUÇÃO');
     console.log('🌐 URL principal:', this.baseUrl);
     console.log('🔄 URLs de fallback:', this.fallbackUrls);
+    console.log('📡 Hairpin NAT: Porta 80 → 3000, Porta 443 → 3001');
   }
 
-
-  // ✅ TESTAR MÚLTIPLAS URLS
+  // ✅ TESTE OTIMIZADO PARA PRODUÇÃO
   async testarUrls() {
     const urlsParaTestar = [this.baseUrl, ...this.fallbackUrls];
     
@@ -54,18 +57,24 @@ class ApiService {
         console.log(`🔍 Testando: ${url}`);
         
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        // Timeout menor em produção para ser mais responsivo
+        const timeout = __DEV__ ? 5000 : 3000;
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
         
         const response = await fetch(`${url}/health`, {
           signal: controller.signal,
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
         });
         
         clearTimeout(timeoutId);
         
         if (response.ok) {
-          console.log(`✅ URL funcionando: ${url}`);
+          const data = await response.json();
+          console.log(`✅ URL funcionando: ${url}`, data?.protocol || '');
           this.baseUrl = url;
           return url;
         }
@@ -78,7 +87,7 @@ class ApiService {
     throw new Error('Nenhuma URL do servidor está acessível');
   }
 
-  // ✅ VERIFICAR CONECTIVIDADE DE REDE
+  // ✅ VERIFICAÇÃO DE REDE MELHORADA
   async verificarRedeDisponivel() {
     try {
       const networkState = await Network.getNetworkStateAsync();
@@ -87,8 +96,10 @@ class ApiService {
         throw new Error('Sem conexão com a internet');
       }
       
-      if (!networkState.isInternetReachable) {
-        throw new Error('Internet não está acessível');
+      // Em produção, verificar também se a internet está realmente acessível
+      if (!__DEV__ && !networkState.isInternetReachable) {
+        console.log('⚠️ Internet pode não estar totalmente acessível');
+        // Não falhar aqui, continuar tentando
       }
       
       console.log('✅ Rede disponível:', {
@@ -134,8 +145,7 @@ class ApiService {
     }
   }
 
-  // ✅ VERIFICAR CONECTIVIDADE COM FALLBACK DE URLS
-   // ✅ VERIFICAÇÃO MELHORADA PARA BUILD
+  // ✅ VERIFICAÇÃO INTELIGENTE DE CONECTIVIDADE
   async verificarConectividade() {
     try {
       console.log('🔍 Verificando conectividade...');
@@ -145,8 +155,8 @@ class ApiService {
       // Verificar rede primeiro
       await this.verificarRedeDisponivel();
       
-      // ✅ TENTAR URL ATUAL COM TIMEOUT MENOR EM BUILD
-      const timeoutDuration = __DEV__ ? 5000 : 3000; // Timeout menor em build
+      // ✅ TIMEOUT OTIMIZADO POR AMBIENTE
+      const timeoutDuration = __DEV__ ? 5000 : 2500;
       
       try {
         const controller = new AbortController();
@@ -168,32 +178,31 @@ class ApiService {
         
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ Servidor online na URL atual:', data);
+          console.log('✅ Servidor online na URL atual:', data?.protocol || 'HTTP');
           return { success: true, data, url: this.baseUrl };
         }
       } catch (error) {
         console.log('⚠️ URL atual falhou, tentando fallbacks...');
         console.log('❌ Erro específico:', error.message);
         
-        // ✅ TESTAR FALLBACKS COM MÉTODO MAIS AGRESSIVO
+        // ✅ TENTAR FALLBACKS
         const urlFuncionando = await this.testarUrls();
         
         const response = await fetch(`${urlFuncionando}/health`);
         const data = await response.json();
         
-        console.log('✅ Conectado via fallback:', data);
+        console.log('✅ Conectado via fallback:', data?.protocol || 'HTTP');
         return { success: true, data, url: urlFuncionando };
       }
       
     } catch (error) {
       console.error('❌ Falha total de conectividade:', error);
       
-      // ✅ DIAGNÓSTICO ESPECÍFICO PARA BUILD
+      // ✅ DIAGNÓSTICO ESPECÍFICO
       if (!__DEV__) {
-        console.error('🏗️ DIAGNÓSTICO BUILD:');
-        console.error('- Verifique se usesCleartextTraffic está true');
-        console.error('- Verifique networkSecurityConfig');
-        console.error('- Teste se o servidor está acessível na rede');
+        console.error('🏗️ DIAGNÓSTICO PRODUÇÃO:');
+        console.error('- Verifique se está conectado à internet');
+        console.error('- Verifique se o servidor está online em 168.197.64.215');
         console.error('- URLs testadas:', [this.baseUrl, ...this.fallbackUrls]);
       }
       
@@ -201,13 +210,7 @@ class ApiService {
     }
   }
 
-
-
-  
-  
-
-
-  // ✅ FAZER REQUISIÇÃO COM VERIFICAÇÃO MELHORADA
+  // ✅ REQUISIÇÃO OTIMIZADA
   async makeRequest(endpoint, options = {}) {
     try {
       // Verificar conectividade apenas se não for skipado
@@ -225,7 +228,7 @@ class ApiService {
           ...(token && { Authorization: `Bearer ${token}` }),
           ...options.headers,
         },
-        timeout: 15000,
+        timeout: __DEV__ ? 15000 : 10000, // Timeout menor em produção
         ...options,
       };
 
@@ -253,13 +256,18 @@ class ApiService {
       if (!response.ok) {
         let errorText = 'Erro desconhecido';
         try {
-          errorText = await response.text();
+          const errorData = await response.json();
+          errorText = errorData.message || errorData.error || response.statusText;
         } catch (e) {
-          console.log('Não foi possível ler texto do erro');
+          try {
+            errorText = await response.text();
+          } catch (e2) {
+            errorText = `HTTP ${response.status}`;
+          }
         }
         
         console.error('❌ Erro HTTP:', errorText);
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
+        throw new Error(`${errorText}`);
       }
 
       const data = await response.json();
@@ -272,12 +280,12 @@ class ApiService {
       
       // Melhorar mensagens de erro
       if (error.name === 'AbortError') {
-        throw new Error('Timeout: Operação demorou muito para completar');
+        throw new Error('Operação cancelada por timeout. Verifique sua conexão.');
       }
       
       if (error.message.includes('Network request failed') ||
           error.message.includes('fetch')) {
-        throw new Error(`Erro de conexão. Verifique se o servidor está acessível em ${this.baseUrl}`);
+        throw new Error(`Erro de conexão. Servidor pode estar offline.`);
       }
       
       throw error;
@@ -316,23 +324,23 @@ class ApiService {
   }
 
   async cadastrar(dadosUsuario) {
-  try {
-    console.log('📝 Iniciando cadastro para:', dadosUsuario.email);
-    console.log('🌐 Conectando em:', this.baseUrl);
-    
-    const response = await this.makeRequest('/auth/cadastrar', {
-      method: 'POST',
-      body: JSON.stringify(dadosUsuario),
-    });
+    try {
+      console.log('📝 Iniciando cadastro para:', dadosUsuario.email);
+      console.log('🌐 Conectando em:', this.baseUrl);
+      
+      const response = await this.makeRequest('/auth/cadastrar', {
+        method: 'POST',
+        body: JSON.stringify(dadosUsuario),
+      });
 
-    console.log('✅ Cadastro realizado:', response.success);
-    return response;
-    
-  } catch (error) {
-    console.error('❌ Erro no cadastro:', error.message);
-    throw error;
+      console.log('✅ Cadastro realizado:', response.success);
+      return response;
+      
+    } catch (error) {
+      console.error('❌ Erro no cadastro:', error.message);
+      throw error;
+    }
   }
-}
 
   async verificarToken() {
     try {
@@ -481,31 +489,37 @@ class ApiService {
 
       console.log('✅ Histórico carregado:', response.pontos?.length || 0, 'pontos');
       
+      // Enriquecer pontos com dados de ajustes
       if (response.success && response.pontos) {
-        const ajustesResponse = await this.buscarAjustes();
-        if (ajustesResponse.success) {
-          const ajustes = ajustesResponse.ajustes || [];
-          
-          response.pontos = response.pontos.map(ponto => {
-            const ajusteRelacionado = ajustes.find(ajuste => 
-              ajuste.pontoId === (ponto.id || ponto._id)
-            );
+        try {
+          const ajustesResponse = await this.buscarAjustes();
+          if (ajustesResponse.success) {
+            const ajustes = ajustesResponse.ajustes || [];
             
-            if (ajusteRelacionado) {
-              return {
-                ...ponto,
-                statusAjuste: ajusteRelacionado.status,
-                novoHorario: ajusteRelacionado.novoHorario,
-                motivoAjuste: ajusteRelacionado.motivo,
-                respostaRH: ajusteRelacionado.respostaMensagem,
-                ...(ajusteRelacionado.status === 'aprovado' ? {
-                  horarioOriginal: ponto.dataHora,
-                  dataHora: ajusteRelacionado.novoHorario
-                } : {})
-              };
-            }
-            return ponto;
-          });
+            response.pontos = response.pontos.map(ponto => {
+              const ajusteRelacionado = ajustes.find(ajuste => 
+                ajuste.pontoId === (ponto.id || ponto._id)
+              );
+              
+              if (ajusteRelacionado) {
+                return {
+                  ...ponto,
+                  statusAjuste: ajusteRelacionado.status,
+                  novoHorario: ajusteRelacionado.novoHorario,
+                  motivoAjuste: ajusteRelacionado.motivo,
+                  respostaRH: ajusteRelacionado.respostaMensagem,
+                  ...(ajusteRelacionado.status === 'aprovado' ? {
+                    horarioOriginal: ponto.dataHora,
+                    dataHora: ajusteRelacionado.novoHorario
+                  } : {})
+                };
+              }
+              return ponto;
+            });
+          }
+        } catch (ajustesError) {
+          console.log('⚠️ Erro ao carregar ajustes:', ajustesError.message);
+          // Continuar sem os ajustes
         }
       }
       
@@ -584,152 +598,7 @@ class ApiService {
     }
   }
 
-  async diagnosticarConexaoBuild() {
-  console.log('🔬 === DIAGNÓSTICO BUILD ===');
-  console.log('📱 Ambiente:', __DEV__ ? 'DESENVOLVIMENTO' : 'BUILD APK');
-  console.log('🌐 URL principal:', this.baseUrl);
-  console.log('📡 Constants disponível:', !!Constants);
-  console.log('🔌 Network disponível:', !!Network);
-  
-  const resultados = {
-    ambiente: __DEV__ ? 'DEV' : 'BUILD',
-    urlPrincipal: this.baseUrl,
-    testeUrls: [],
-    rede: null,
-    erro: null
-  };
-  
-  try {
-    // Testar estado da rede
-    console.log('📶 Testando estado da rede...');
-    const networkState = await Network.getNetworkStateAsync();
-    resultados.rede = {
-      connected: networkState.isConnected,
-      internet: networkState.isInternetReachable,
-      type: networkState.type
-    };
-    console.log('📶 Estado da rede:', resultados.rede);
-    
-    // Testar cada URL individualmente com timeout pequeno
-    const urlsParaTestar = [this.baseUrl, ...this.fallbackUrls];
-    
-    for (const url of urlsParaTestar) {
-      const testeUrl = { url, status: null, tempo: null, erro: null, sucesso: false };
-      
-      try {
-        console.log(`🧪 Testando: ${url}`);
-        const inicio = Date.now();
-        
-        // Timeout bem pequeno para build
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          controller.abort();
-          console.log(`⏰ Timeout em ${url}`);
-        }, 2000); // 2 segundos apenas
-        
-        const response = await fetch(`${url}/health`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        const tempo = Date.now() - inicio;
-        
-        testeUrl.status = response.status;
-        testeUrl.tempo = tempo;
-        testeUrl.sucesso = response.ok;
-        
-        console.log(`${response.ok ? '✅' : '❌'} ${url} - ${response.status} (${tempo}ms)`);
-        
-        if (response.ok) {
-          try {
-            const data = await response.json();
-            testeUrl.resposta = data;
-            console.log('📄 Resposta:', data?.message || 'OK');
-            
-            // Se encontrou uma URL funcionando, atualizar a base
-            if (!resultados.urlFuncionando) {
-              resultados.urlFuncionando = url;
-              this.baseUrl = url; // Atualizar URL base
-            }
-          } catch (jsonError) {
-            console.log('⚠️ Erro ao ler JSON da resposta');
-            testeUrl.erro = 'Erro ao ler JSON';
-          }
-        }
-        
-      } catch (error) {
-        testeUrl.erro = error.message;
-        console.log(`❌ ${url} - ${error.message}`);
-        
-        if (error.name === 'AbortError') {
-          testeUrl.erro = 'Timeout';
-        }
-      }
-      
-      resultados.testeUrls.push(testeUrl);
-    }
-    
-    // Resultado final
-    const urlsFuncionando = resultados.testeUrls.filter(t => t.sucesso);
-    resultados.sucesso = urlsFuncionando.length > 0;
-    resultados.totalTestadas = resultados.testeUrls.length;
-    resultados.funcionando = urlsFuncionando.length;
-    
-    console.log('🎯 === RESULTADO FINAL ===');
-    console.log(`✅ URLs funcionando: ${urlsFuncionando.length}/${resultados.totalTestadas}`);
-    console.log(`🌐 URL escolhida: ${resultados.urlFuncionando || 'NENHUMA'}`);
-    console.log('===========================');
-    
-    return resultados;
-    
-  } catch (error) {
-    console.error('❌ Erro no diagnóstico:', error);
-    resultados.erro = error.message;
-    resultados.sucesso = false;
-    return resultados;
-  }
-}
-
-// ✅ MÉTODO SIMPLIFICADO PARA TESTE RÁPIDO
-async testeRapidoBuild() {
-  try {
-    console.log('⚡ Teste rápido iniciado...');
-    
-    // Teste direto na URL principal
-    const response = await fetch(`${this.baseUrl}/health`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      return {
-        sucesso: true,
-        url: this.baseUrl,
-        status: response.status,
-        resposta: data
-      };
-    } else {
-      return {
-        sucesso: false,
-        url: this.baseUrl,
-        status: response.status,
-        erro: `HTTP ${response.status}`
-      };
-    }
-    
-  } catch (error) {
-    return {
-      sucesso: false,
-      url: this.baseUrl,
-      erro: error.message
-    };
-  }
-}
-
-  // ==================== UTILITÁRIOS ====================
+  // ==================== UTILITÁRIOS DE TESTE ====================
   async testarConexao() {
     try {
       console.log('🔧 Testando conexão...');
@@ -752,43 +621,108 @@ async testeRapidoBuild() {
         url: this.baseUrl,
         urlsTestadas: [this.baseUrl, ...this.fallbackUrls],
         sugestoes: [
-          'Verifique se o servidor está rodando',
-          'Confirme se está na mesma rede WiFi',
-          'Teste manualmente no navegador os IPs listados',
-          'Reinicie o servidor e o aplicativo',
-          'Verifique o firewall/antivirus'
+          'Verifique se o servidor está rodando em 168.197.64.215',
+          'Confirme se está conectado à internet',
+          'Teste manualmente no navegador: http://168.197.64.215',
+          'Verifique se o firewall não está bloqueando',
+          'Reinicie o aplicativo'
         ]
       };
     }
   }
 
-  // ✅ FORÇAR REDESCOBERTA DO IP
-  async redescbrirServidor() {
+  // ✅ DIAGNÓSTICO SIMPLIFICADO PARA PRODUÇÃO
+  async diagnosticarConexao() {
+    console.log('🔬 === DIAGNÓSTICO DE CONEXÃO ===');
+    console.log('📱 Ambiente:', __DEV__ ? 'DESENVOLVIMENTO' : 'PRODUÇÃO');
+    console.log('🌐 URL principal:', this.baseUrl);
+    
+    const resultados = {
+      ambiente: __DEV__ ? 'DEV' : 'PRODUÇÃO',
+      urlPrincipal: this.baseUrl,
+      testeUrls: [],
+      rede: null,
+      erro: null
+    };
+    
     try {
-      console.log('🔍 Forçando redescoberta do servidor...');
-      
-      const urlEncontrada = await this.testarUrls();
-      
-      console.log(`✅ Servidor redescoberto em: ${urlEncontrada}`);
-      
-      return {
-        success: true,
-        novaUrl: urlEncontrada,
-        message: `Servidor encontrado em ${urlEncontrada}`
+      // Testar estado da rede
+      console.log('📶 Testando estado da rede...');
+      const networkState = await Network.getNetworkStateAsync();
+      resultados.rede = {
+        connected: networkState.isConnected,
+        internet: networkState.isInternetReachable,
+        type: networkState.type
       };
+      console.log('📶 Estado da rede:', resultados.rede);
+      
+      // Testar URLs prioritárias
+      const urlsPrioritarias = __DEV__ 
+        ? [this.baseUrl, 'http://192.168.88.22:3000']
+        : [this.baseUrl, 'http://168.197.64.215', 'https://168.197.64.215'];
+      
+      for (const url of urlsPrioritarias) {
+        const testeUrl = { url, status: null, tempo: null, erro: null, sucesso: false };
+        
+        try {
+          console.log(`🧪 Testando: ${url}`);
+          const inicio = Date.now();
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            controller.abort();
+            console.log(`⏰ Timeout em ${url}`);
+          }, 3000);
+          
+          const response = await fetch(`${url}/health`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          const tempo = Date.now() - inicio;
+          
+          testeUrl.status = response.status;
+          testeUrl.tempo = tempo;
+          testeUrl.sucesso = response.ok;
+          
+          console.log(`${response.ok ? '✅' : '❌'} ${url} - ${response.status} (${tempo}ms)`);
+          
+          if (response.ok && !resultados.urlFuncionando) {
+            resultados.urlFuncionando = url;
+            this.baseUrl = url;
+          }
+          
+        } catch (error) {
+          testeUrl.erro = error.name === 'AbortError' ? 'Timeout' : error.message;
+          console.log(`❌ ${url} - ${testeUrl.erro}`);
+        }
+        
+        resultados.testeUrls.push(testeUrl);
+      }
+      
+      // Resultado final
+      const urlsFuncionando = resultados.testeUrls.filter(t => t.sucesso);
+      resultados.sucesso = urlsFuncionando.length > 0;
+      resultados.funcionando = urlsFuncionando.length;
+      
+      console.log('🎯 === RESULTADO FINAL ===');
+      console.log(`✅ URLs funcionando: ${urlsFuncionando.length}/${resultados.testeUrls.length}`);
+      console.log(`🌐 URL escolhida: ${resultados.urlFuncionando || 'NENHUMA'}`);
+      console.log('===========================');
+      
+      return resultados;
       
     } catch (error) {
-      console.error('❌ Nenhum servidor encontrado');
-      
-      return {
-        success: false,
-        error: 'Nenhum servidor acessível encontrado',
-        urlsTestadas: [this.baseUrl, ...this.fallbackUrls]
-      };
+      console.error('❌ Erro no diagnóstico:', error);
+      resultados.erro = error.message;
+      resultados.sucesso = false;
+      return resultados;
     }
   }
 
-  // ✅ NOVA: Obter informações de debug melhoradas
+  // ✅ INFORMAÇÕES DE DEBUG
   getDebugInfo() {
     const debuggerHost = Constants.expoConfig?.hostUri
       ? Constants.expoConfig.hostUri.split(':').shift()
@@ -800,32 +734,11 @@ async testeRapidoBuild() {
       isDev: __DEV__,
       debuggerHost,
       expoGoUrl: Constants.expoConfig?.hostUri,
-      platform: Constants.platform,
-      expoVersion: Constants.expoVersion,
+      platform: Constants.platform?.os,
       deviceName: Constants.deviceName,
       sessionId: Constants.sessionId
     };
   }
-
-  // ✅ MÉTODO PARA LOGS DETALHADOS
-  async logConnectionDetails() {
-    const debug = this.getDebugInfo();
-    
-    console.log('📋 === DETALHES DE CONEXÃO ===');
-    console.log('🌐 URL principal:', debug.apiBaseUrl);
-    console.log('🔄 URLs fallback:', debug.fallbackUrls);
-    console.log('📱 Plataforma:', debug.platform?.os);
-    console.log('🔗 Expo Go URL:', debug.expoGoUrl);
-    console.log('💻 Debugger Host:', debug.debuggerHost);
-    console.log('📱 Device:', debug.deviceName);
-    console.log('🆔 Session:', debug.sessionId);
-    console.log('===============================');
-    
-    return debug;
-  }
 }
-
-
-
 
 export default new ApiService();
