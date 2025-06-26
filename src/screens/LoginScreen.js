@@ -262,7 +262,7 @@ export default function LoginScreen() {
 
           <View style={styles.biometriaInfo}>
             <Text style={styles.biometriaInfoTexto}>
-              💡 Habilite a biometria nas configurações para login mais rápido BERNARDO KUSTER
+              💡 Habilite a biometria nas configurações para login mais rápido
             </Text>
           </View>
         </Animated.View>

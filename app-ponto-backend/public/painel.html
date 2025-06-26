@@ -7,663 +7,927 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-      * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    background-color: #f4f4f8;
-    color: #2e3a59;
-    min-height: 100vh;
-}
-
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px;
-}
-
-.header {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 20px 30px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.header h1 {
-    font-size: 1.75rem;
-    color: #0052cc;
-    font-weight: 600;
-}
-
-.header .info {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-size: 0.9rem;
-    color: #6b7280;
-}
-
-.status-badge {
-    background-color: #28a745;
-    color: white;
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.tabs {
-    display: flex;
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 6px;
-    margin-bottom: 24px;
-    border: 1px solid #e5e7eb;
-    overflow-x: auto;
-}
-
-.tab {
-    flex: 1;
-    text-align: center;
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: #6b7280;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    white-space: nowrap;
-}
-
-.tab.active {
-    background-color: #0052cc;
-    color: #ffffff;
-    font-weight: 600;
-}
-
-.tab:hover:not(.active) {
-    background-color: #f0f4f8;
-    color: #0052cc;
-}
-
-.content-panel {
-    display: none;
-}
-
-.content-panel.active {
-    display: block;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-}
-
-.stat-icon {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    color: #0052cc;
-}
-
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #2e3a59;
-}
-
-.stat-label {
-    font-size: 0.85rem;
-    color: #6b7280;
-}
-
-.panel-card {
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    overflow: hidden;
-}
-
-.panel-header {
-    background: #0052cc;
-    color: white;
-    padding: 16px 24px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.refresh-btn {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: background 0.2s ease;
-}
-
-.refresh-btn:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-.table-container {
-    max-height: 600px;
-    overflow-y: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 0.9rem;
-    text-align: left;
-}
-
-th {
-    background-color: #f9fafb;
-    color: #2e3a59;
-    font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-tr:hover {
-    background-color: #f4f6f8;
-}
-
-.status-badge-small {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.status-pendente {
-    background: #fff8e1;
-    color: #ff9800;
-}
-
-.status-aprovado {
-    background: #e6f4ea;
-    color: #2e7d32;
-}
-
-.status-rejeitado {
-    background: #fdecea;
-    color: #d32f2f;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 8px;
-}
-
-.btn {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: background 0.2s ease;
-}
-
-.btn-approve {
-    background: #28a745;
-    color: white;
-}
-
-.btn-approve:hover {
-    background: #218838;
-}
-
-.btn-reject {
-    background: #dc3545;
-    color: white;
-}
-
-.btn-reject:hover {
-    background: #c82333;
-}
-
-.btn-view {
-    background: #17a2b8;
-    color: white;
-}
-
-.btn-view:hover {
-    background: #138496;
-}
-
-.filters {
-    padding: 20px 30px;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.filter-label {
-    font-size: 0.85rem;
-    color: #6b7280;
-    font-weight: 600;
-}
-
-.filter-input {
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.9rem;
-}
-
-.loading {
-    text-align: center;
-    padding: 40px;
-    color: #6b7280;
-}
-
-.loading i {
-    font-size: 2rem;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    max-width: 500px;
-    margin: 50px auto;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.modal-header {
-    background: #0052cc;
-    color: white;
-    padding: 20px;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-.modal-body {
-    padding: 24px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #374151;
-}
-
-.form-input, .form-textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    background: #ffffff;
-}
-
-.form-textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn-modal {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-.btn-primary {
-    background: #0052cc;
-    color: white;
-}
-
-.btn-secondary {
-    background: #6b7280;
-    color: white;
-}
-
-.user-select {
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    width: 200px;
-    background: #fff;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6b7280;
-}
-
-.empty-state i {
-    font-size: 3.5rem;
-    opacity: 0.2;
-    margin-bottom: 20px;
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 12px;
-    }
-
-    .header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .filters {
-        flex-direction: column;
-        align-items: stretch;
-    }
-}
-
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f4f4f8;
+            color: #2e3a59;
+            min-height: 100vh;
+        }
+
+        /* ==================== TELA DE LOGIN ==================== */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .login-title {
+            text-align: center;
+            color: #0052cc;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0052cc;
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            background: #0052cc;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .login-button:hover {
+            background: #004099;
+        }
+
+        .login-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border: 1px solid #fecaca;
+        }
+
+        /* ==================== PAINEL PRINCIPAL ==================== */
+        .main-panel {
+            display: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: #0052cc;
+            font-weight: 600;
+        }
+
+        .header .info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .status-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #0052cc;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2e3a59;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .tabs {
+            display: flex;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 6px;
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background-color: #0052cc;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: #f0f4f8;
+            color: #0052cc;
+        }
+
+        .content-panel {
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        .panel-card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #0052cc;
+            color: white;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f9fafb;
+            color: #2e3a59;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:hover {
+            background-color: #f4f6f8;
+        }
+
+        .status-badge-small {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pendente {
+            background: #fff8e1;
+            color: #ff9800;
+        }
+
+        .status-aprovado {
+            background: #e6f4ea;
+            color: #2e7d32;
+        }
+
+        .status-rejeitado {
+            background: #fdecea;
+            color: #d32f2f;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            opacity: 0.2;
+            margin-bottom: 20px;
+        }
+
+        /* ==================== ESTILO PARA LISTA DE USUÁRIOS ==================== */
+        .usuarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .usuario-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .usuario-card:hover {
+            border-color: #0052cc;
+            box-shadow: 0 2px 8px rgba(0, 82, 204, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .usuario-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0052cc, #667eea);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .usuario-info {
+            flex: 1;
+        }
+
+        .usuario-nome {
+            font-weight: 600;
+            color: #2e3a59;
+            margin-bottom: 4px;
+        }
+
+        .usuario-email {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .usuario-stats {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* ==================== HISTÓRICO INDIVIDUAL ==================== */
+        .historico-container {
+            padding: 20px;
+        }
+
+        .historico-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-voltar {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-voltar:hover {
+            background: #4b5563;
+        }
+
+        .filtros-historico {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filtro-data {
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-filtro {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-filtro:hover {
+            background: #c82333;
+        }
+
+        .resumo-pontos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .resumo-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .resumo-numero {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0052cc;
+            margin-bottom: 5px;
+        }
+
+        .resumo-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* Status dos pontos */
+        .status-normal {
+            background: #e6f4ea;
+            color: #2e7d32;
+        }
+
+        .status-ajustado {
+            background: #fff8e1;
+            color: #ff9800;
+        }
+
+        .status-atrasado {
+            background: #fdecea;
+            color: #d32f2f;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+            margin: 50px auto;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: #0052cc;
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #ffffff;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #0052cc;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* Debug panel */
+        .debug-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .debug-toggle {
+            background: #0d7ada;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div>
-                <h1><i class="fas fa-chart-line"></i> Painel RH - BMZ</h1>
-                <p style="color: #666; margin-top: 5px;">Sistema de Controle de Ponto Eletrônico</p>
-            </div>
-            <div class="info">
-                <div class="status-badge">
-                    <i class="fas fa-wifi"></i> Online
+    <!-- ==================== TELA DE LOGIN ==================== -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h1 class="login-title">🏢 Painel RH - BMZ</h1>
+            <p class="login-subtitle">Sistema de Controle de Ponto Eletrônico</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Login:</label>
+                    <input type="text" class="form-input" id="loginInput" placeholder="Digite seu login" required>
                 </div>
-                <span style="color: #666;">Atualizado em: <span id="lastUpdate">--:--</span></span>
-            </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Senha:</label>
+                    <input type="password" class="form-input" id="senhaInput" placeholder="Digite sua senha" required>
+                </div>
+                
+                <button type="submit" class="login-button" id="loginButton">
+                    <i class="fas fa-sign-in-alt"></i> Entrar no Painel
+                </button>
+            </form>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
         </div>
+    </div>
 
-        <!-- Estatísticas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="color: #28a745;">
-                    <i class="fas fa-users"></i>
+    <!-- ==================== PAINEL PRINCIPAL ==================== -->
+    <div id="mainPanel" class="main-panel">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div>
+                    <h1><i class="fas fa-chart-line"></i> Painel RH - BMZ</h1>
+                    <p style="color: #666; margin-top: 5px;">Sistema de Controle de Ponto Eletrônico</p>
                 </div>
-                <div class="stat-number" id="totalUsuarios">--</div>
-                <div class="stat-label">Usuários Ativos</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="color: #ffc107;">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-number" id="ajustesPendentes">--</div>
-                <div class="stat-label">Ajustes Pendentes</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="color: #17a2b8;">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <div class="stat-number" id="pontosHoje">--</div>
-                <div class="stat-label">Pontos Hoje</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="color: #dc3545;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-number" id="problemas">--</div>
-                <div class="stat-label">Inconsistências</div>
-            </div>
-        </div>
-
-        <!-- Abas -->
-        <div class="tabs">
-            <div class="tab active" onclick="showTab('ajustes')">
-                <i class="fas fa-edit"></i> Solicitações de Ajuste
-            </div>
-            <div class="tab" onclick="showTab('pontos')">
-                <i class="fas fa-history"></i> Histórico de Pontos
-            </div>
-            <div class="tab" onclick="showTab('usuarios')">
-                <i class="fas fa-users"></i> Usuários
-            </div>
-            <div class="tab" onclick="showTab('relatorios')">
-                <i class="fas fa-chart-bar"></i> Relatórios
-            </div>
-        </div>
-
-        <!-- Painel de Ajustes -->
-        <div id="ajustes" class="content-panel active">
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h2 class="panel-title">Solicitações de Ajuste de Horário</h2>
-                    <button class="refresh-btn" onclick="carregarAjustes()">
-                        <i class="fas fa-sync-alt"></i> Atualizar
+                <div class="info">
+                    <div class="status-badge">
+                        <i class="fas fa-wifi"></i> Online
+                    </div>
+                    <span style="color: #666;">Atualizado em: <span id="lastUpdate">--:--</span></span>
+                    <button class="logout-btn" onclick="fazerLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
                 </div>
-                <div class="filters">
-                    <div class="filter-group">
-                        <label class="filter-label">Status:</label>
-                        <select class="filter-input" id="filtroStatus" onchange="filtrarAjustes()">
-                            <option value="">Todos</option>
-                            <option value="pendente">Pendentes</option>
-                            <option value="aprovado">Aprovados</option>
-                            <option value="rejeitado">Rejeitados</option>
-                        </select>
+            </div>
+
+            <!-- Debug toggle -->
+            <button class="debug-toggle" onclick="toggleDebug()">Developer Mode</button>
+            <div id="debugPanel" class="debug-panel"></div>
+
+            <!-- Estatísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #28a745;">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Usuário:</label>
-                        <input type="text" class="filter-input" id="filtroUsuario" placeholder="Nome ou CPF" onkeyup="filtrarAjustes()">
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Data:</label>
-                        <input type="date" class="filter-input" id="filtroData" onchange="filtrarAjustes()">
-                    </div>
+                    <div class="stat-number" id="totalUsuarios">--</div>
+                    <div class="stat-label">Usuários Ativos</div>
                 </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data/Hora</th>
-                                <th>Usuário</th>
-                                <th>Ponto Original</th>
-                                <th>Novo Horário</th>
-                                <th>Motivo</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ajustesTableBody">
-                            <tr>
-                                <td colspan="7" class="loading">
-                                    <i class="fas fa-spinner"></i><br>
-                                    Carregando solicitações...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #ffc107;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number" id="ajustesPendentes">--</div>
+                    <div class="stat-label">Ajustes Pendentes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #17a2b8;">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-number" id="pontosHoje">--</div>
+                    <div class="stat-label">Pontos Hoje</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-number" id="problemas">--</div>
+                    <div class="stat-label">Inconsistências</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Painel de Pontos -->
-        <div id="pontos" class="content-panel">
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h2 class="panel-title">Histórico de Pontos</h2>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <select class="user-select" id="usuarioSelect" onchange="carregarPontos()">
-                            <option value="">Todos os usuários</option>
-                        </select>
-                        <button class="refresh-btn" onclick="carregarPontos()">
+            <!-- Abas -->
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('ajustes')">
+                    <i class="fas fa-edit"></i> Solicitações de Ajuste
+                </div>
+                <div class="tab" onclick="showTab('pontos')">
+                    <i class="fas fa-history"></i> Histórico de Pontos
+                </div>
+                <div class="tab" onclick="showTab('usuarios')">
+                    <i class="fas fa-users"></i> Usuários
+                </div>
+            </div>
+
+            <!-- Painel de Ajustes -->
+            <div id="ajustes" class="content-panel active">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Solicitações de Ajuste de Horário</h2>
+                        <button class="refresh-btn" onclick="carregarAjustes()">
                             <i class="fas fa-sync-alt"></i> Atualizar
                         </button>
                     </div>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Usuário</th>
-                                <th>Tipo</th>
-                                <th>Horário</th>
-                                <th>Localização</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pontosTableBody">
-                            <tr>
-                                <td colspan="6" class="loading">
-                                    <i class="fas fa-spinner"></i><br>
-                                    Carregando pontos...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Painel de Usuários -->
-        <div id="usuarios" class="content-panel">
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h2 class="panel-title">Usuários Cadastrados</h2>
-                    <button class="refresh-btn" onclick="carregarUsuarios()">
-                        <i class="fas fa-sync-alt"></i> Atualizar
-                    </button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Email</th>
-                                <th>CPF</th>
-                                <th>Empresa</th>
-                                <th>Último Login</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usuariosTableBody">
-                            <tr>
-                                <td colspan="6" class="loading">
-                                    <i class="fas fa-spinner"></i><br>
-                                    Carregando usuários...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Usuário</th>
+                                    <th>Ponto Original</th>
+                                    <th>Novo Horário</th>
+                                    <th>Motivo</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ajustesTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading">
+                                        <i class="fas fa-spinner"></i><br>
+                                        Carregando solicitações...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Painel de Relatórios -->
-        <div id="relatorios" class="content-panel">
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h2 class="panel-title">Relatórios</h2>
-                    <button class="refresh-btn" onclick="gerarRelatorio()">
-                        <i class="fas fa-download"></i> Gerar
-                    </button>
+            <!-- Painel de Pontos -->
+            <div id="pontos" class="content-panel">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Histórico de Pontos</h2>
+                        <button class="refresh-btn" onclick="carregarUsuariosParaPontos()">
+                            <i class="fas fa-sync-alt"></i> Atualizar
+                        </button>
+                    </div>
+
+                    <!-- Lista de Usuários -->
+                    <div id="listaUsuarios" class="usuarios-grid">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i><br>
+                            Carregando usuários...
+                        </div>
+                    </div>
+
+                    <!-- Histórico Individual do Usuário -->
+                    <div id="historicoUsuario" class="historico-container" style="display: none;">
+                        <div class="historico-header">
+                            <button class="btn-voltar" onclick="voltarParaListaUsuarios()">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </button>
+                            <h3 id="nomeUsuarioSelecionado">Histórico do Usuário</h3>
+                            <div class="filtros-historico">
+                                <input type="date" id="filtroDataInicio" class="filtro-data" onchange="filtrarPontosUsuario()">
+                                <span>até</span>
+                                <input type="date" id="filtroDataFim" class="filtro-data" onchange="filtrarPontosUsuario()">
+                                <button class="btn-filtro" onclick="limparFiltros()">
+                                    <i class="fas fa-times"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="resumo-pontos">
+                            <div class="resumo-card">
+                                <span class="resumo-numero" id="totalPontosUsuario">0</span>
+                                <span class="resumo-label">Total de Pontos</span>
+                            </div>
+                            <div class="resumo-card">
+                                <span class="resumo-numero" id="diasTrabalhados">0</span>
+                                <span class="resumo-label">Dias Trabalhados</span>
+                            </div>
+                            <div class="resumo-card">
+                                <span class="resumo-numero" id="horasTotal">0h</span>
+                                <span class="resumo-label">Horas Totais</span>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Dia da Semana</th>
+                                        <th>Tipo</th>
+                                        <th>Horário</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pontosUsuarioTableBody">
+                                    <tr>
+                                        <td colspan="5" class="loading">
+                                            <i class="fas fa-spinner"></i><br>
+                                            Carregando histórico...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div style="padding: 30px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-                            <h3><i class="fas fa-file-excel"></i> Relatório Mensal</h3>
-                            <p style="margin: 10px 0; color: #666;">Pontos de todos os usuários no mês atual</p>
-                            <button class="btn btn-view" onclick="exportarRelatorio('mensal')">Baixar Excel</button>
-                        </div>
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
-                            <h3><i class="fas fa-file-pdf"></i> Relatório de Ajustes</h3>
-                            <p style="margin: 10px 0; color: #666;">Todas as solicitações de ajuste</p>
-                            <button class="btn btn-view" onclick="exportarRelatorio('ajustes')">Baixar PDF</button>
-                        </div>
+            </div>
+
+            <!-- Painel de Usuários -->
+            <div id="usuarios" class="content-panel">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Usuários Cadastrados</h2>
+                        <button class="refresh-btn" onclick="carregarUsuarios()">
+                            <i class="fas fa-sync-alt"></i> Atualizar
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>CPF</th>
+                                    <th>Empresa</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuariosTableBody">
+                                <tr>
+                                    <td colspan="5" class="loading">
+                                        <i class="fas fa-spinner"></i><br>
+                                        Carregando usuários...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -692,13 +956,741 @@ tr:hover {
     </div>
 
     <script>
+        // Variáveis globais
+        let adminToken = null;
         let ajustesData = [];
         let pontosData = [];
         let usuariosData = [];
         let acao = '';
         let ajusteId = '';
+        let debugMode = false;
 
-        // Função para mostrar abas
+        // ==================== FUNÇÃO DEBUG ====================
+        function debugLog(message, data = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            let logMessage = `[${timestamp}] ${message}`;
+            if (data) {
+                logMessage += '\n' + JSON.stringify(data, null, 2);
+            }
+            console.log(logMessage);
+            
+            if (debugMode) {
+                const debugPanel = document.getElementById('debugPanel');
+                debugPanel.textContent += logMessage + '\n\n';
+                debugPanel.scrollTop = debugPanel.scrollHeight;
+            }
+        }
+
+        function toggleDebug() {
+            debugMode = !debugMode;
+            const debugPanel = document.getElementById('debugPanel');
+            debugPanel.style.display = debugMode ? 'block' : 'none';
+            if (debugMode) {
+                debugPanel.textContent = '=== Console de desenvolvedor ativado. ===\n\n';
+
+            }
+        }
+
+        // ==================== LOGIN ADMINISTRATIVO ====================
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const login = document.getElementById('loginInput').value;
+            const senha = document.getElementById('senhaInput').value;
+            const loginButton = document.getElementById('loginButton');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (!login || !senha) {
+                mostrarErro('Login e senha são obrigatórios');
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+            errorMessage.style.display = 'none';
+
+            try {
+                debugLog('Tentando fazer login', { login });
+                
+                const response = await fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ login, senha })
+                });
+
+                const data = await response.json();
+                debugLog('Resposta do login', data);
+
+                if (data.success) {
+                    adminToken = data.adminToken;
+                    debugLog('Login realizado com sucesso');
+                    
+                    // Ocultar tela de login e mostrar painel
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainPanel').style.display = 'block';
+                    
+                    // Carregar dados iniciais
+                    inicializarPainel();
+                } else {
+                    mostrarErro(data.message || 'Erro ao fazer login');
+                }
+            } catch (error) {
+                debugLog('Erro no login', error);
+                mostrarErro('Erro de conexão. Verifique se o servidor está funcionando.');
+            }
+
+            loginButton.disabled = false;
+            loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar no Painel';
+        });
+
+        function mostrarErro(mensagem) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = mensagem;
+            errorDiv.style.display = 'block';
+        }
+
+        // ==================== INICIALIZAÇÃO DO PAINEL ====================
+        function inicializarPainel() {
+            debugLog('Inicializando painel');
+            carregarAjustes();
+            carregarUsuarios();
+            atualizarTimestamp();
+        }
+
+        function atualizarTimestamp() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('pt-BR');
+        }
+
+        // ==================== LOGOUT ====================
+        function fazerLogout() {
+            if (confirm('Deseja sair do painel administrativo?')) {
+                adminToken = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainPanel').style.display = 'none';
+                document.getElementById('loginInput').value = '';
+                document.getElementById('senhaInput').value = '';
+                debugLog('Logout realizado');
+            }
+        }
+
+        // ==================== FUNÇÃO PARA FAZER REQUISIÇÕES COM TOKEN ====================
+        async function fazerRequisicao(url, options = {}) {
+            if (!adminToken) {
+                throw new Error('Token administrativo não encontrado');
+            }
+
+            const config = {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'admin-token': adminToken,
+                    ...options.headers
+                }
+            };
+
+            debugLog(`Fazendo requisição para: ${url}`, config);
+
+            const response = await fetch(url, config);
+            
+            if (response.status === 401) {
+                alert('Sessão expirada. Faça login novamente.');
+                fazerLogout();
+                throw new Error('Token inválido');
+            }
+
+            const data = await response.json();
+            debugLog(`Resposta de ${url}`, data);
+            
+            return data;
+        }
+
+        // ==================== CARREGAR AJUSTES ====================
+        async function carregarAjustes() {
+            try {
+                debugLog('Carregando ajustes...');
+                
+                const data = await fazerRequisicao('/api/ajustes/admin');
+                
+                if (data.success) {
+                    ajustesData = data.ajustes;
+                    renderizarAjustes(ajustesData);
+                    atualizarEstatisticas();
+                    debugLog('Ajustes carregados', { total: ajustesData.length });
+                } else {
+                    debugLog('Erro ao carregar ajustes', data.message);
+                    mostrarErroTabela('ajustesTableBody', 'Erro ao carregar ajustes: ' + data.message);
+                }
+            } catch (error) {
+                debugLog('Erro na requisição de ajustes', error);
+                mostrarErroTabela('ajustesTableBody', 'Erro de conexão ao carregar ajustes');
+            }
+        }
+
+        // ==================== RENDERIZAR AJUSTES ====================
+        function renderizarAjustes(ajustes) {
+            const tbody = document.getElementById('ajustesTableBody');
+            
+            if (ajustes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-inbox"></i><br>
+                            Nenhuma solicitação encontrada
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = ajustes.map(ajuste => `
+                <tr>
+                    <td>${formatarData(ajuste.criadoEm)}</td>
+                    <td>${ajuste.usuario?.nome || formatarCPF(ajuste.cpf)}</td>
+                    <td>${ajuste.pontoOriginal ? formatarData(ajuste.pontoOriginal.dataHora) : 'N/A'}</td>
+                    <td>${formatarData(ajuste.novoHorario)}</td>
+                    <td title="${ajuste.motivo}">${ajuste.motivo.substring(0, 50)}${ajuste.motivo.length > 50 ? '...' : ''}</td>
+                    <td><span class="status-badge-small status-${ajuste.status}">${ajuste.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            ${ajuste.status === 'pendente' ? `
+                                <button class="btn btn-approve" onclick="abrirModal('${ajuste._id}', 'aprovar')" title="Aprovar">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-reject" onclick="abrirModal('${ajuste._id}', 'rejeitar')" title="Rejeitar">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : `
+                                <span style="color: #999; font-size: 0.8rem;">
+                                    ${ajuste.status === 'aprovado' ? '✅ Processado' : '❌ Processado'}
+                                </span>
+                            `}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ==================== CARREGAR USUÁRIOS PARA PONTOS ====================
+        let usuarioSelecionado = null;
+        let pontosUsuarioOriginal = [];
+        let pontosUsuarioFiltrados = [];
+
+        async function carregarUsuariosParaPontos() {
+            try {
+                debugLog('Carregando usuários para histórico de pontos...');
+                
+                // Garantir que os usuários estejam carregados
+                if (usuariosData.length === 0) {
+                    await carregarUsuarios();
+                }
+                
+                renderizarListaUsuarios(usuariosData);
+                
+            } catch (error) {
+                debugLog('Erro ao carregar usuários para pontos', error);
+                const container = document.getElementById('listaUsuarios');
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        Erro ao carregar usuários
+                    </div>
+                `;
+            }
+        }
+
+        // ==================== RENDERIZAR LISTA DE USUÁRIOS ====================
+        function renderizarListaUsuarios(usuarios) {
+            const container = document.getElementById('listaUsuarios');
+            
+            if (usuarios.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i><br>
+                        Nenhum usuário encontrado
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar usuários por nome
+            const usuariosOrdenados = usuarios.sort((a, b) => {
+                const nomeA = `${a.nome} ${a.sobrenome || ''}`.trim();
+                const nomeB = `${b.nome} ${b.sobrenome || ''}`.trim();
+                return nomeA.localeCompare(nomeB);
+            });
+
+            debugLog('Renderizando lista de usuários', { total: usuariosOrdenados.length });
+
+            container.innerHTML = usuariosOrdenados.map(usuario => {
+                const nomeCompleto = `${usuario.nome} ${usuario.sobrenome || ''}`.trim();
+                const iniciais = nomeCompleto.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                
+                return `
+                    <div class="usuario-card" onclick="selecionarUsuario('${usuario.id || usuario._id}')">
+                        <div class="usuario-avatar">${iniciais}</div>
+                        <div class="usuario-info">
+                            <div class="usuario-nome">${nomeCompleto}</div>
+                            <div class="usuario-email">${usuario.email}</div>
+                        </div>
+                        <div class="usuario-stats">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== SELECIONAR USUÁRIO (CORRIGIDO) ====================
+        async function selecionarUsuario(usuarioId) {
+            try {
+                debugLog('Selecionando usuário', { usuarioId });
+                
+                // Buscar usuário pelos possíveis IDs
+                usuarioSelecionado = usuariosData.find(u => 
+                    u.id === usuarioId || 
+                    u._id === usuarioId || 
+                    u._id?.toString() === usuarioId || 
+                    u.id?.toString() === usuarioId
+                );
+                
+                if (!usuarioSelecionado) {
+                    debugLog('Usuário não encontrado na lista', { 
+                        usuarioId, 
+                        usuariosDisponiveis: usuariosData.map(u => ({ id: u.id || u._id, nome: u.nome })) 
+                    });
+                    alert('Usuário não encontrado');
+                    return;
+                }
+
+                debugLog('Usuário encontrado', {
+                    id: usuarioSelecionado.id || usuarioSelecionado._id,
+                    nome: usuarioSelecionado.nome,
+                    cpf: usuarioSelecionado.cpf
+                });
+
+                // Mostrar tela de histórico e ocultar lista
+                document.getElementById('listaUsuarios').style.display = 'none';
+                document.getElementById('historicoUsuario').style.display = 'block';
+
+                // Atualizar nome do usuário
+                const nomeCompleto = `${usuarioSelecionado.nome} ${usuarioSelecionado.sobrenome || ''}`.trim();
+                document.getElementById('nomeUsuarioSelecionado').textContent = `Histórico de ${nomeCompleto}`;
+
+                // Definir datas padrão (últimos 30 dias)
+                const hoje = new Date();
+                const trintaDiasAtras = new Date();
+                trintaDiasAtras.setDate(hoje.getDate() - 30);
+
+                document.getElementById('filtroDataFim').value = hoje.toISOString().split('T')[0];
+                document.getElementById('filtroDataInicio').value = trintaDiasAtras.toISOString().split('T')[0];
+
+                // CORREÇÃO PRINCIPAL: Buscar pontos usando CPF E tentativas múltiplas
+                await carregarPontosUsuarioCorrigido();
+
+            } catch (error) {
+                debugLog('Erro ao selecionar usuário', error);
+                alert('Erro ao carregar dados do usuário: ' + error.message);
+            }
+        }
+
+        // ==================== CARREGAR PONTOS DO USUÁRIO (CORRIGIDO) ====================
+        async function carregarPontosUsuarioCorrigido() {
+            const tbody = document.getElementById('pontosUsuarioTableBody');
+            
+            try {
+                // Mostrar loading
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="loading">
+                            <i class="fas fa-spinner"></i><br>
+                            Carregando pontos do usuário...
+                        </td>
+                    </tr>
+                `;
+
+                debugLog('Iniciando carregamento de pontos para usuário', {
+                    usuario: usuarioSelecionado.nome,
+                    cpf: usuarioSelecionado.cpf,
+                    id: usuarioSelecionado.id || usuarioSelecionado._id
+                });
+
+                // MÉTODO 1: Tentar buscar por CPF limpo
+                let pontosEncontrados = [];
+                const cpfLimpo = usuarioSelecionado.cpf ? usuarioSelecionado.cpf.replace(/\D/g, '') : null;
+                
+                if (cpfLimpo) {
+                    debugLog('Tentativa 1: Buscando por CPF via API específica', { cpf: cpfLimpo });
+                    
+                    try {
+                        const data = await fazerRequisicao(`/api/pontos/usuario/${cpfLimpo}`);
+                        
+                        if (data.success && data.pontos && data.pontos.length > 0) {
+                            pontosEncontrados = data.pontos;
+                            debugLog('✅ Pontos encontrados via API específica', { total: pontosEncontrados.length });
+                        } else {
+                            debugLog('❌ API específica não retornou pontos', data);
+                        }
+                    } catch (error) {
+                        debugLog('❌ Erro na API específica', error);
+                    }
+                }
+
+                // MÉTODO 2: Se não encontrou, buscar todos os pontos e filtrar
+                if (pontosEncontrados.length === 0) {
+                    debugLog('Tentativa 2: Buscando todos os pontos e filtrando...');
+                    
+                    try {
+                        const data = await fazerRequisicao('/api/pontos/admin');
+                        
+                        if (data.success && data.pontos) {
+                            // Filtrar pontos do usuário usando múltiplos critérios
+                            pontosEncontrados = data.pontos.filter(ponto => {
+                                // Verificar por ID do usuário
+                                if (ponto.usuario && 
+                                    (ponto.usuario._id === (usuarioSelecionado.id || usuarioSelecionado._id) ||
+                                     ponto.usuario.toString() === (usuarioSelecionado.id || usuarioSelecionado._id))) {
+                                    return true;
+                                }
+                                
+                                // Verificar por CPF
+                                if (cpfLimpo && ponto.cpf && ponto.cpf.replace(/\D/g, '') === cpfLimpo) {
+                                    return true;
+                                }
+                                
+                                return false;
+                            });
+                            
+                            debugLog('✅ Pontos filtrados manualmente', { 
+                                total: pontosEncontrados.length,
+                                totalPontos: data.pontos.length 
+                            });
+                        }
+                    } catch (error) {
+                        debugLog('❌ Erro ao buscar todos os pontos', error);
+                    }
+                }
+
+                // MÉTODO 3: Verificar se há pontos com estrutura diferente
+                if (pontosEncontrados.length === 0) {
+                    debugLog('Tentativa 3: Análise detalhada dos dados...');
+                    
+                    try {
+                        const data = await fazerRequisicao('/api/pontos/admin');
+                        
+                        if (data.success && data.pontos && data.pontos.length > 0) {
+                            // Analisar estrutura dos primeiros pontos para debug
+                            const amostraPontos = data.pontos.slice(0, 3);
+                            debugLog('Estrutura dos pontos (amostra)', amostraPontos);
+                            
+                            // Verificar se há algum padrão diferente
+                            const pontosComUsuario = data.pontos.filter(p => p.usuario);
+                            const pontosComCpf = data.pontos.filter(p => p.cpf);
+                            
+                            debugLog('Análise dos pontos', {
+                                totalPontos: data.pontos.length,
+                                pontosComUsuario: pontosComUsuario.length,
+                                pontosComCpf: pontosComCpf.length,
+                                estruturaUsuario: pontosComUsuario.length > 0 ? Object.keys(pontosComUsuario[0]) : 'Nenhum',
+                                usuariosUnicos: [...new Set(pontosComUsuario.map(p => 
+                                    typeof p.usuario === 'object' ? p.usuario._id : p.usuario
+                                ))],
+                                cpfsUnicos: [...new Set(pontosComCpf.map(p => p.cpf))]
+                            });
+                        }
+                    } catch (error) {
+                        debugLog('❌ Erro na análise detalhada', error);
+                    }
+                }
+
+                // Renderizar resultado final
+                if (pontosEncontrados.length > 0) {
+                    pontosUsuarioOriginal = pontosEncontrados;
+                    pontosUsuarioFiltrados = [...pontosUsuarioOriginal];
+                    
+                    renderizarPontosUsuario(pontosUsuarioFiltrados);
+                    atualizarResumoUsuario(pontosUsuarioFiltrados);
+                    
+                    debugLog('✅ Pontos carregados com sucesso', { 
+                        total: pontosEncontrados.length,
+                        usuario: usuarioSelecionado.nome 
+                    });
+                } else {
+                    // Mostrar que não há pontos, mas não como erro
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <i class="fas fa-calendar-times"></i><br>
+                                Nenhum ponto encontrado para este usuário<br>
+                                <small style="color: #999;">
+                                    Usuário: ${usuarioSelecionado.nome}<br>
+                                    CPF: ${formatarCPF(usuarioSelecionado.cpf)}
+                                </small>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    // Zerar resumo
+                    document.getElementById('totalPontosUsuario').textContent = '0';
+                    document.getElementById('diasTrabalhados').textContent = '0';
+                    document.getElementById('horasTotal').textContent = '0h';
+                    
+                    debugLog('⚠️ Nenhum ponto encontrado para o usuário', {
+                        usuario: usuarioSelecionado.nome,
+                        cpf: usuarioSelecionado.cpf
+                    });
+                }
+
+            } catch (error) {
+                debugLog('❌ Erro crítico ao carregar pontos', error);
+                mostrarErroTabela('pontosUsuarioTableBody', `Erro ao carregar pontos: ${error.message}`);
+            }
+        }
+
+        // ==================== RENDERIZAR PONTOS DO USUÁRIO ====================
+        function renderizarPontosUsuario(pontos) {
+            const tbody = document.getElementById('pontosUsuarioTableBody');
+            
+            if (pontos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <i class="fas fa-calendar-times"></i><br>
+                            Nenhum ponto encontrado no período
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Ordenar por data (mais recente primeiro)
+            const pontosOrdenados = pontos.sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+
+            tbody.innerHTML = pontosOrdenados.map(ponto => {
+                const data = new Date(ponto.dataHora);
+                const diaSemana = data.toLocaleDateString('pt-BR', { weekday: 'long' });
+                const status = determinarStatusPonto(ponto);
+
+                return `
+                    <tr>
+                        <td>${formatarData(ponto.dataHora, true)}</td>
+                        <td style="text-transform: capitalize;">${diaSemana}</td>
+                        <td>${formatarTipoPonto(ponto.tipo)}</td>
+                        <td>${formatarHora(ponto.dataHora)}</td>
+                        <td><span class="status-badge-small ${status.classe}">${status.texto}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ==================== DETERMINAR STATUS DO PONTO ====================
+        function determinarStatusPonto(ponto) {
+            // Verificar se tem ajuste aprovado
+            const ajusteAprovado = ajustesData.find(a => 
+                a.pontoId === (ponto.id || ponto._id) && a.status === 'aprovado'
+            );
+
+            if (ajusteAprovado) {
+                return { classe: 'status-ajustado', texto: 'Ajustado' };
+            }
+
+            // Verificar horários normais (exemplo básico)
+            const hora = new Date(ponto.dataHora).getHours();
+            
+            if (ponto.tipo === 'entrada' && hora > 9) {
+                return { classe: 'status-atrasado', texto: 'Atraso' };
+            }
+
+            return { classe: 'status-normal', texto: 'Normal' };
+        }
+
+        // ==================== FILTRAR PONTOS POR DATA ====================
+        function filtrarPontosUsuario() {
+            const dataInicio = document.getElementById('filtroDataInicio').value;
+            const dataFim = document.getElementById('filtroDataFim').value;
+
+            if (!dataInicio && !dataFim) {
+                pontosUsuarioFiltrados = [...pontosUsuarioOriginal];
+            } else {
+                pontosUsuarioFiltrados = pontosUsuarioOriginal.filter(ponto => {
+                    const dataPonto = new Date(ponto.dataHora).toISOString().split('T')[0];
+                    
+                    const passaInicio = !dataInicio || dataPonto >= dataInicio;
+                    const passaFim = !dataFim || dataPonto <= dataFim;
+                    
+                    return passaInicio && passaFim;
+                });
+            }
+
+            renderizarPontosUsuario(pontosUsuarioFiltrados);
+            atualizarResumoUsuario(pontosUsuarioFiltrados);
+            
+            debugLog('Filtro aplicado', { 
+                dataInicio, 
+                dataFim, 
+                totalFiltrado: pontosUsuarioFiltrados.length,
+                totalOriginal: pontosUsuarioOriginal.length 
+            });
+        }
+
+        // ==================== LIMPAR FILTROS ====================
+        function limparFiltros() {
+            document.getElementById('filtroDataInicio').value = '';
+            document.getElementById('filtroDataFim').value = '';
+            
+            pontosUsuarioFiltrados = [...pontosUsuarioOriginal];
+            renderizarPontosUsuario(pontosUsuarioFiltrados);
+            atualizarResumoUsuario(pontosUsuarioFiltrados);
+            
+            debugLog('Filtros limpos');
+        }
+
+        // ==================== ATUALIZAR RESUMO DO USUÁRIO ====================
+        function atualizarResumoUsuario(pontos) {
+            const totalPontos = pontos.length;
+            
+            // Contar dias únicos
+            const diasUnicos = new Set(pontos.map(p => 
+                new Date(p.dataHora).toISOString().split('T')[0]
+            )).size;
+            
+            // Calcular horas trabalhadas (exemplo simples)
+            const horasTotal = Math.floor(totalPontos * 2.5); // Estimativa
+            
+            document.getElementById('totalPontosUsuario').textContent = totalPontos;
+            document.getElementById('diasTrabalhados').textContent = diasUnicos;
+            document.getElementById('horasTotal').textContent = `${horasTotal}h`;
+        }
+
+        // ==================== VOLTAR PARA LISTA DE USUÁRIOS ====================
+        function voltarParaListaUsuarios() {
+            document.getElementById('historicoUsuario').style.display = 'none';
+            document.getElementById('listaUsuarios').style.display = 'grid';
+            
+            usuarioSelecionado = null;
+            pontosUsuarioOriginal = [];
+            pontosUsuarioFiltrados = [];
+            
+            debugLog('Voltou para lista de usuários');
+        }
+
+        // ==================== CARREGAR USUÁRIOS ====================
+        async function carregarUsuarios() {
+            try {
+                debugLog('Carregando usuários...');
+                
+                const data = await fazerRequisicao('/api/auth/admin/usuarios');
+                
+                if (data.success) {
+                    usuariosData = data.usuarios;
+                    renderizarUsuarios(usuariosData);
+                    debugLog('Usuários carregados', { total: usuariosData.length });
+                } else {
+                    debugLog('Erro ao carregar usuários', data.message);
+                    mostrarErroTabela('usuariosTableBody', 'Erro ao carregar usuários');
+                }
+            } catch (error) {
+                debugLog('Erro na requisição de usuários', error);
+                mostrarErroTabela('usuariosTableBody', 'Erro de conexão ao carregar usuários');
+            }
+        }
+
+        // ==================== RENDERIZAR USUÁRIOS ====================
+        function renderizarUsuarios(usuarios) {
+            const tbody = document.getElementById('usuariosTableBody');
+            
+            if (usuarios.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <i class="fas fa-inbox"></i><br>
+                            Nenhum usuário encontrado
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = usuarios.map(usuario => `
+                <tr>
+                    <td>${usuario.nome} ${usuario.sobrenome || ''}</td>
+                    <td>${usuario.email}</td>
+                    <td>${formatarCPF(usuario.cpf)}</td>
+                    <td>${usuario.empresa || 'BMZ Advogados'}</td>
+                    <td><span class="status-badge-small status-aprovado">Ativo</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // ==================== MODAL DE AÇÕES ====================
+        function abrirModal(id, tipoAcao) {
+            ajusteId = id;
+            acao = tipoAcao;
+            
+            const ajuste = ajustesData.find(a => a._id === id);
+            if (!ajuste) {
+                alert('Ajuste não encontrado');
+                return;
+            }
+
+            document.getElementById('modalTitulo').textContent = 
+                tipoAcao === 'aprovar' ? 'Aprovar Solicitação' : 'Rejeitar Solicitação';
+            
+            document.getElementById('modalDetalhes').innerHTML = `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>Usuário:</strong> ${ajuste.usuario?.nome || formatarCPF(ajuste.cpf)}<br>
+                    <strong>Motivo:</strong> ${ajuste.motivo}<br>
+                    <strong>Horário atual:</strong> ${ajuste.pontoOriginal ? formatarData(ajuste.pontoOriginal.dataHora) : 'N/A'}<br>
+                    <strong>Novo horário:</strong> ${formatarData(ajuste.novoHorario)}
+                </div>
+            `;
+
+            document.getElementById('btnConfirmar').textContent = 
+                tipoAcao === 'aprovar' ? 'Aprovar' : 'Rejeitar';
+            document.getElementById('btnConfirmar').className = 
+                `btn-modal ${tipoAcao === 'aprovar' ? 'btn-primary' : 'btn-reject'}`;
+
+            document.getElementById('modalAcao').style.display = 'block';
+        }
+
+        // ==================== CONFIRMAR AÇÃO ====================
+        async function confirmarAcao() {
+            const mensagem = document.getElementById('respostaMensagem').value;
+            const status = acao === 'aprovar' ? 'aprovado' : 'rejeitado';
+
+            try {
+                debugLog(`Processando ajuste ${ajusteId} como ${status}`);
+                
+                const data = await fazerRequisicao(`/api/ajustes/${ajusteId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        status: status,
+                        respostaMensagem: mensagem.trim()
+                    })
+                });
+
+                if (data.success) {
+                    alert(`Solicitação ${status} com sucesso!`);
+                    fecharModal();
+                    carregarAjustes(); // Recarregar lista
+                    debugLog('Ajuste processado com sucesso');
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            } catch (error) {
+                debugLog('Erro ao processar ajuste', error);
+                alert('Erro ao processar solicitação: ' + error.message);
+            }
+        }
+
+        // ==================== FECHAR MODAL ====================
+        function fecharModal() {
+            document.getElementById('modalAcao').style.display = 'none';
+            document.getElementById('respostaMensagem').value = '';
+        }
+
+        // ==================== MOSTRAR ABAS ====================
         function showTab(tabName) {
             // Ocultar todas as abas
             document.querySelectorAll('.content-panel').forEach(panel => {
@@ -718,7 +1710,7 @@ tr:hover {
                     carregarAjustes();
                     break;
                 case 'pontos':
-                    carregarPontos();
+                    carregarUsuariosParaPontos();
                     break;
                 case 'usuarios':
                     carregarUsuarios();
@@ -726,308 +1718,44 @@ tr:hover {
             }
         }
 
-        // Carregar ajustes
-        async function carregarAjustes() {
-            try {
-                const response = await fetch('/api/ajustes/admin');
-                const data = await response.json();
-                
-                if (data.success) {
-                    ajustesData = data.ajustes;
-                    renderizarAjustes(ajustesData);
-                    atualizarEstatisticas();
-                } else {
-                    console.error('Erro ao carregar ajustes:', data.message);
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('ajustesTableBody').innerHTML = `
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i><br>
-                            Erro ao carregar dados
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Renderizar tabela de ajustes
-        function renderizarAjustes(ajustes) {
-            const tbody = document.getElementById('ajustesTableBody');
-            
-            if (ajustes.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-inbox"></i><br>
-                            Nenhuma solicitação encontrada
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = ajustes.map(ajuste => `
-                <tr>
-                    <td>${new Date(ajuste.criadoEm).toLocaleString('pt-BR')}</td>
-                    <td>${ajuste.usuario?.nome || ajuste.cpf}</td>
-                    <td>${new Date(ajuste.pontoOriginal?.dataHora).toLocaleString('pt-BR')}</td>
-                    <td>${new Date(ajuste.novoHorario).toLocaleString('pt-BR')}</td>
-                    <td title="${ajuste.motivo}">${ajuste.motivo.substring(0, 50)}${ajuste.motivo.length > 50 ? '...' : ''}</td>
-                    <td><span class="status-badge-small status-${ajuste.status}">${ajuste.status}</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            ${ajuste.status === 'pendente' ? `
-                                <button class="btn btn-approve" onclick="abrirModal('${ajuste._id}', 'aprovar')" title="Aprovar">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn btn-reject" onclick="abrirModal('${ajuste._id}', 'rejeitar')" title="Rejeitar">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : ''}
-                            <button class="btn btn-view" onclick="verDetalhes('${ajuste._id}')" title="Ver detalhes">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // Filtrar ajustes
-        function filtrarAjustes() {
-            const status = document.getElementById('filtroStatus').value;
-            const usuario = document.getElementById('filtroUsuario').value.toLowerCase();
-            const data = document.getElementById('filtroData').value;
-
-            let ajustesFiltrados = ajustesData.filter(ajuste => {
-                const matchStatus = !status || ajuste.status === status;
-                const matchUsuario = !usuario || 
-                    (ajuste.usuario?.nome || '').toLowerCase().includes(usuario) ||
-                    ajuste.cpf.includes(usuario);
-                const matchData = !data || 
-                    new Date(ajuste.criadoEm).toDateString() === new Date(data).toDateString();
-
-                return matchStatus && matchUsuario && matchData;
-            });
-
-            renderizarAjustes(ajustesFiltrados);
-        }
-
-        // Abrir modal
-        function abrirModal(id, tipoAcao) {
-            ajusteId = id;
-            acao = tipoAcao;
-            
-            const ajuste = ajustesData.find(a => a._id === id);
-            if (!ajuste) return;
-
-            document.getElementById('modalTitulo').textContent = 
-                tipoAcao === 'aprovar' ? 'Aprovar Solicitação' : 'Rejeitar Solicitação';
-            
-            document.getElementById('modalDetalhes').innerHTML = `
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <strong>Usuário:</strong> ${ajuste.usuario?.nome || ajuste.cpf}<br>
-                    <strong>Motivo:</strong> ${ajuste.motivo}<br>
-                    <strong>Horário atual:</strong> ${new Date(ajuste.pontoOriginal?.dataHora).toLocaleString('pt-BR')}<br>
-                    <strong>Novo horário:</strong> ${new Date(ajuste.novoHorario).toLocaleString('pt-BR')}
-                </div>
-            `;
-
-            document.getElementById('btnConfirmar').textContent = 
-                tipoAcao === 'aprovar' ? 'Aprovar' : 'Rejeitar';
-            document.getElementById('btnConfirmar').className = 
-                `btn-modal ${tipoAcao === 'aprovar' ? 'btn-primary' : 'btn-reject'}`;
-
-            document.getElementById('modalAcao').style.display = 'block';
-        }
-
-        // Confirmar ação
-        async function confirmarAcao() {
-            const mensagem = document.getElementById('respostaMensagem').value;
-            const status = acao === 'aprovar' ? 'aprovado' : 'rejeitado';
-
-            try {
-                const response = await fetch(`/api/ajustes/${ajusteId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: status,
-                        respostaMensagem: mensagem
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert(`Solicitação ${status} com sucesso!`);
-                    fecharModal();
-                    carregarAjustes();
-                } else {
-                    alert('Erro: ' + data.message);
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao processar solicitação');
-            }
-        }
-
-        // Fechar modal
-        function fecharModal() {
-            document.getElementById('modalAcao').style.display = 'none';
-            document.getElementById('respostaMensagem').value = '';
-        }
-
-        // Ver detalhes
-        function verDetalhes(id) {
-            const ajuste = ajustesData.find(a => a._id === id);
-            if (!ajuste) return;
-
-            alert(`
-Detalhes da Solicitação:
-
-Usuário: ${ajuste.usuario?.nome || ajuste.cpf}
-Data da solicitação: ${new Date(ajuste.criadoEm).toLocaleString('pt-BR')}
-Motivo: ${ajuste.motivo}
-Status: ${ajuste.status}
-${ajuste.respostaMensagem ? `Resposta: ${ajuste.respostaMensagem}` : ''}
-            `);
-        }
-
-        // Carregar pontos
-        async function carregarPontos() {
-            try {
-                const usuarioId = document.getElementById('usuarioSelect').value;
-                const url = usuarioId ? `/api/pontos/admin?usuario=${usuarioId}` : '/api/pontos/admin';
-                
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.success) {
-                    pontosData = data.pontos;
-                    renderizarPontos(pontosData);
-                } else {
-                    console.error('Erro ao carregar pontos:', data.message);
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('pontosTableBody').innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i><br>
-                            Erro ao carregar dados
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Renderizar pontos
-        function renderizarPontos(pontos) {
-            const tbody = document.getElementById('pontosTableBody');
-            
-            if (pontos.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <i class="fas fa-inbox"></i><br>
-                            Nenhum ponto encontrado
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = pontos.map(ponto => `
-                <tr>
-                    <td>${new Date(ponto.dataHora).toLocaleDateString('pt-BR')}</td>
-                    <td>${ponto.usuario?.nome || 'N/A'}</td>
-                    <td>${formatarTipoPonto(ponto.tipo)}</td>
-                    <td>${new Date(ponto.dataHora).toLocaleTimeString('pt-BR')}</td>
-                    <td>${ponto.localizacao?.endereco || 'N/A'}</td>
-                    <td><span class="status-badge-small status-${ponto.fotoVerificada ? 'aprovado' : 'pendente'}">${ponto.fotoVerificada ? 'Verificado' : 'Pendente'}</span></td>
-                </tr>
-            `).join('');
-        }
-
-        // Carregar usuários
-        async function carregarUsuarios() {
-            try {
-                const response = await fetch('/api/auth/admin/usuarios');
-                const data = await response.json();
-                
-                if (data.success) {
-                    usuariosData = data.usuarios;
-                    renderizarUsuarios(usuariosData);
-                    popularSelectUsuarios(usuariosData);
-                } else {
-                    console.error('Erro ao carregar usuários:', data.message);
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('usuariosTableBody').innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <i class="fas fa-exclamation-triangle"></i><br>
-                            Erro ao carregar dados
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Renderizar usuários
-        function renderizarUsuarios(usuarios) {
-            const tbody = document.getElementById('usuariosTableBody');
-            
-            if (usuarios.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <i class="fas fa-inbox"></i><br>
-                            Nenhum usuário encontrado
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = usuarios.map(usuario => `
-                <tr>
-                    <td>${usuario.nome} ${usuario.sobrenome || ''}</td>
-                    <td>${usuario.email}</td>
-                    <td>${formatarCPF(usuario.cpf)}</td>
-                    <td>${usuario.empresa || 'BMZ Advogados'}</td>
-                    <td>${usuario.ultimoLogin ? new Date(usuario.ultimoLogin).toLocaleString('pt-BR') : 'Nunca'}</td>
-                    <td><span class="status-badge-small status-aprovado">Ativo</span></td>
-                </tr>
-            `).join('');
-        }
-
-        // Popular select de usuários
-        function popularSelectUsuarios(usuarios) {
-            const select = document.getElementById('usuarioSelect');
-            select.innerHTML = '<option value="">Todos os usuários</option>';
-            usuarios.forEach(usuario => {
-                select.innerHTML += `<option value="${usuario._id}">${usuario.nome} ${usuario.sobrenome || ''}</option>`;
-            });
-        }
-
-        // Atualizar estatísticas
+        // ==================== ATUALIZAR ESTATÍSTICAS ====================
         function atualizarEstatisticas() {
             document.getElementById('totalUsuarios').textContent = usuariosData.length;
-            document.getElementById('ajustesPendentes').textContent = ajustesData.filter(a => a.status === 'pendente').length;
-            document.getElementById('pontosHoje').textContent = pontosData.filter(p => 
-                new Date(p.dataHora).toDateString() === new Date().toDateString()
+            document.getElementById('ajustesPendentes').textContent = 
+                ajustesData.filter(a => a.status === 'pendente').length;
+            
+            // Contar pontos de hoje
+            const hoje = new Date().toDateString();
+            const pontosHoje = pontosData.filter(p => 
+                new Date(p.dataHora).toDateString() === hoje
             ).length;
-            document.getElementById('problemas').textContent = '0'; // Implementar lógica de problemas
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('pt-BR');
+            document.getElementById('pontosHoje').textContent = pontosHoje;
+            
+            // Inconsistências (exemplo: ajustes rejeitados)
+            const inconsistencias = ajustesData.filter(a => a.status === 'rejeitado').length;
+            document.getElementById('problemas').textContent = inconsistencias;
+            
+            atualizarTimestamp();
         }
 
-        // Funções utilitárias
+        // ==================== FUNÇÕES UTILITÁRIAS ====================
+        function formatarData(data, somenteData = false) {
+            const date = new Date(data);
+            if (somenteData) {
+                return date.toLocaleDateString('pt-BR');
+            }
+            return date.toLocaleString('pt-BR');
+        }
+
+        function formatarHora(data) {
+            return new Date(data).toLocaleTimeString('pt-BR');
+        }
+
+        function formatarCPF(cpf) {
+            if (!cpf) return 'N/A';
+            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+
         function formatarTipoPonto(tipo) {
             const tipos = {
                 'entrada': 'Entrada',
@@ -1038,54 +1766,47 @@ ${ajuste.respostaMensagem ? `Resposta: ${ajuste.respostaMensagem}` : ''}
             return tipos[tipo] || tipo;
         }
 
-        function formatarCPF(cpf) {
-            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        function mostrarErroTabela(tbodyId, mensagem) {
+            const tbody = document.getElementById(tbodyId);
+            const colspan = tbody.closest('table').querySelectorAll('th').length;
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="${colspan}" class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        ${mensagem}
+                    </td>
+                </tr>
+            `;
         }
 
-        // Exportar relatórios
-        function exportarRelatorio(tipo) {
-            alert(`Funcionalidade de exportação ${tipo} será implementada em breve!`);
-        }
-
-        // Gerar relatório
-        function gerarRelatorio() {
-            alert('Gerando relatórios...');
-        }
-
-        // Eventos de teclado
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                fecharModal();
-            }
-        });
-
-        // Fechar modal clicando fora
+        // ==================== EVENTOS ====================
+        // Fechar modal ao clicar fora
         document.getElementById('modalAcao').addEventListener('click', function(e) {
             if (e.target === this) {
                 fecharModal();
             }
         });
 
-        // Auto-refresh a cada 30 segundos
+        // Fechar modal com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                fecharModal();
+            }
+        });
+
+        // Auto-refresh a cada 30 segundos (apenas se logado)
         setInterval(() => {
-            const activeTab = document.querySelector('.tab.active');
-            if (activeTab) {
-                const tabText = activeTab.textContent.trim();
-                if (tabText.includes('Ajuste')) {
+            if (adminToken) {
+                const activeTab = document.querySelector('.tab.active');
+                if (activeTab && activeTab.textContent.includes('Ajuste')) {
                     carregarAjustes();
-                } else if (tabText.includes('Pontos')) {
-                    carregarPontos();
-                } else if (tabText.includes('Usuários')) {
-                    carregarUsuarios();
                 }
             }
         }, 30000);
 
-        // Inicializar painel
+        // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', function() {
-            carregarAjustes();
-            carregarUsuarios();
-            atualizarEstatisticas();
+            debugLog('Painel RH BMZ carregado');
         });
     </script>
 </body>
