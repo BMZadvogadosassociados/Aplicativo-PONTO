@@ -256,27 +256,20 @@ function formatarDispositivo(deviceInfo) {
 }
 
 // ==================== CERTIFICADOS SSL ====================
-function criarCertificadoAutoassinado() {
-  const certificadoPath = path.join(__dirname, 'certificados');
-  const keyPath = path.join(certificadoPath, 'private-key.pem');
-  const certPath = path.join(certificadoPath, 'certificate.pem');
+function obterCertificadoLetsEncrypt() {
+  const keyPath = '/etc/letsencrypt/live/pontobmz.com/privkey.pem';
+  const certPath = '/etc/letsencrypt/live/pontobmz.com/fullchain.pem';
 
-  if (!fs.existsSync(certificadoPath)) {
-    fs.mkdirSync(certificadoPath, { recursive: true });
-    console.log('📁 Pasta certificados criada');
+  if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+    console.error('❌ Certificados do Let\'s Encrypt não encontrados. Verifique se o Certbot foi executado corretamente.');
+    return null;
   }
 
-  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-    console.log('🔒 Certificados SSL encontrados');
-    return {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath)
-    };
-  }
-
-  console.log('⚠️ ALERTA | Certificado SSL não foi encontrado no sistema.');
-
-  return null;
+  console.log('🔐 Certificados Let\'s Encrypt encontrados com sucesso');
+  return {
+    key: fs.readFileSync(keyPath, 'utf8'),
+    cert: fs.readFileSync(certPath, 'utf8')
+  };
 }
 
 // ==================== ROTAS BÁSICAS ====================
@@ -784,7 +777,7 @@ app.listen(HTTP_PORT, '0.0.0.0', () => {
 
 // Tentar iniciar servidor HTTPS (porta 3001)
 try {
-  let sslOptions = criarCertificadoAutoassinado();
+  let sslOptions = obterCertificadoLetsEncrypt();
 
   if (!sslOptions) {
     console.error('⚠️ Certificados não encontrados. Continuando apenas com HTTP...');

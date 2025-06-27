@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Network from 'expo-network';
 
-// ✅ CONFIGURAÇÃO OTIMIZADA PARA IP PÚBLICO
+// ✅ CONFIGURAÇÃO ATUALIZADA PARA DOMÍNIO pontobmz.com
 
 const getApiBaseUrl = () => {
   if (__DEV__) {
@@ -23,32 +23,34 @@ const getApiBaseUrl = () => {
     return 'http://192.168.88.22:3000';
   }
   
-  // ✅ EM PRODUÇÃO/BUILD - usar IP público com HAIRPIN NAT (porta 80)
-  console.log('🏗️ BUILD: Usando IP público com Hairpin NAT');
-  return 'http://168.197.64.215'; // Porta 80 via hairpin NAT
+  // ✅ EM PRODUÇÃO/BUILD - usar domínio com HTTPS
+  console.log('🏗️ BUILD: Usando domínio pontobmz.com com HTTPS');
+  return 'https://pontobmz.com'; // Domínio principal com SSL
 };
 
-// ✅ URLs ORGANIZADAS COM HAIRPIN NAT
+// ✅ URLs ORGANIZADAS COM DOMÍNIO E FALLBACKS
 class ApiService {
   constructor() {
     this.baseUrl = getApiBaseUrl();
     this.fallbackUrls = [
-      'http://168.197.64.215',        // IP público porta 80 (via hairpin NAT)
-      'https://168.197.64.215',       // IP público porta 443 (via hairpin NAT)
-      'http://168.197.64.215:3000',   // IP público porta 3000 (direto)
-      'https://168.197.64.215:3001',  // IP público porta 3001 (direto)
-      'http://192.168.88.22:3000',    // IP local para desenvolvimento
-      'https://192.168.88.22:3001',   // IP local HTTPS para desenvolvimento
+      'https://pontobmz.com',          // Domínio principal HTTPS
+      'http://pontobmz.com',           // Domínio HTTP (fallback)
+      'https://www.pontobmz.com',      // Subdomínio www HTTPS
+      'http://www.pontobmz.com',       // Subdomínio www HTTP
+      'http://168.197.64.215',         // IP público porta 80 (via hairpin NAT)
+      'https://168.197.64.215',        // IP público porta 443 (via hairpin NAT)
+      'http://168.197.64.215:3000',    // IP público porta 3000 (direto)
+      'http://192.168.88.22:3000',     // IP local para desenvolvimento
     ];
     
     console.log('🌐 ApiService inicializado');
     console.log('📱 Ambiente:', __DEV__ ? 'DESENVOLVIMENTO' : 'PRODUÇÃO');
     console.log('🌐 URL principal:', this.baseUrl);
     console.log('🔄 URLs de fallback:', this.fallbackUrls);
-    console.log('📡 Hairpin NAT: Porta 80 → 3000, Porta 443 → 3001');
+    console.log('🔒 SSL/HTTPS: Habilitado para pontobmz.com');
   }
 
-  // ✅ TESTE OTIMIZADO PARA PRODUÇÃO
+  // ✅ TESTE OTIMIZADO PARA PRODUÇÃO COM DOMÍNIO
   async testarUrls() {
     const urlsParaTestar = [this.baseUrl, ...this.fallbackUrls];
     
@@ -178,7 +180,7 @@ class ApiService {
         
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ Servidor online na URL atual:', data?.protocol || 'HTTP');
+          console.log('✅ Servidor online na URL atual:', data?.protocol || 'HTTPS');
           return { success: true, data, url: this.baseUrl };
         }
       } catch (error) {
@@ -202,7 +204,7 @@ class ApiService {
       if (!__DEV__) {
         console.error('🏗️ DIAGNÓSTICO PRODUÇÃO:');
         console.error('- Verifique se está conectado à internet');
-        console.error('- Verifique se o servidor está online em 168.197.64.215');
+        console.error('- Verifique se o servidor pontobmz.com está online');
         console.error('- URLs testadas:', [this.baseUrl, ...this.fallbackUrls]);
       }
       
@@ -621,9 +623,9 @@ class ApiService {
         url: this.baseUrl,
         urlsTestadas: [this.baseUrl, ...this.fallbackUrls],
         sugestoes: [
-          'Verifique se o servidor está rodando em 168.197.64.215',
+          'Verifique se o servidor está rodando em pontobmz.com',
           'Confirme se está conectado à internet',
-          'Teste manualmente no navegador: http://168.197.64.215',
+          'Teste manualmente no navegador: https://pontobmz.com',
           'Verifique se o firewall não está bloqueando',
           'Reinicie o aplicativo'
         ]
@@ -659,7 +661,7 @@ class ApiService {
       // Testar URLs prioritárias
       const urlsPrioritarias = __DEV__ 
         ? [this.baseUrl, 'http://192.168.88.22:3000']
-        : [this.baseUrl, 'http://168.197.64.215', 'https://168.197.64.215'];
+        : [this.baseUrl, 'https://pontobmz.com', 'http://pontobmz.com', 'http://168.197.64.215'];
       
       for (const url of urlsPrioritarias) {
         const testeUrl = { url, status: null, tempo: null, erro: null, sucesso: false };
