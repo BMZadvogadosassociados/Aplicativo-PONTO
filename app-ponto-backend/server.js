@@ -39,6 +39,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ==================== ROTA ESPECIAL PARA LET'S ENCRYPT ====================
+// IMPORTANTE: Esta rota deve vir ANTES de qualquer outra rota
+app.use('/.well-known', express.static('/var/www/html/.well-known'));
+
 // Middleware para capturar IP real e informações do dispositivo
 app.use((req, res, next) => {
   // Capturar IP real
@@ -335,8 +339,8 @@ app.get('/rotas', (req, res) => {
       "🖥️ GET /painel - Painel RH completo"
     ],
     protocolos: {
-      http: `http://168.197.64.215 (porta ${HTTP_PORT})`,
-      https: `https://168.197.64.215 (porta ${HTTPS_PORT}) 🔒`
+      http: `http://pontobmz.com (porta ${HTTP_PORT})`,
+      https: `https://pontobmz.com (porta ${HTTPS_PORT}) 🔒`
     },
     versao: "1.0.0",
     timestamp: new Date().toISOString()
@@ -629,88 +633,6 @@ app.get('/api/pontos/admin', verificarAdmin, async (req, res) => {
   }
 });
 
-// Buscar pontos de um usuário específico (Admin) - NOVA ROTA
-// ==================== SUBSTITUIR ESTA ROTA EXISTENTE ====================
-// ENCONTRE ESTA PARTE NO SEU CÓDIGO (aproximadamente linha 655):
-
-// Buscar pontos de um usuário específico (Admin) - NOVA ROTA
-app.get('/api/pontos/usuario/:cpf', verificarAdmin, async (req, res) => {
-  try {
-    const cpf = req.params.cpf;
-  
-    
-    // Primeiro, buscar o usuário pelo CPF para obter o ObjectId
-    console.log('🔍 Buscando usuário com CPF:', cpf);
-    const usuario = await Usuario.findOne({ cpf: cpf }).select('_id nome sobrenome email cpf');
-    
-    if (!usuario) {
-      console.log('❌ Usuário não encontrado para CPF:', cpf);
-      
-      // Debug: listar alguns usuários para comparação
-      const usuariosExemplo = await Usuario.find().select('nome cpf').limit(3);
-      console.log('📋 Usuários de exemplo no banco:', usuariosExemplo);
-      
-      return res.status(404).json({
-        success: false,
-        message: `Usuário não encontrado para CPF: ${cpf}`,
-        debug: {
-          cpfBuscado: cpf,
-          usuariosExemplo: usuariosExemplo
-        }
-      });
-    }
-    
-    console.log('✅ Usuário encontrado:', {
-      id: usuario._id,
-      nome: usuario.nome,
-      cpf: usuario.cpf
-    });
-    
-    // Buscar pontos usando o ObjectId do usuário
-    console.log('🔍 Buscando pontos para usuário ID:', usuario._id);
-    const pontos = await Ponto.find({ usuario: usuario._id }).sort({ dataHora: -1 }).limit(500);
-    
-    console.log('✅ Pontos encontrados:', pontos.length);
-    
-    // Se não encontrou pontos, tentar buscar de outras formas
-    if (pontos.length === 0) {
-      console.log('⚠️ Nenhum ponto encontrado, tentando buscar por CPF direto...');
-      const pontosPorCpf = await Ponto.find({ cpf: cpf }).sort({ dataHora: -1 }).limit(500);
-      console.log('📍 Pontos encontrados por CPF:', pontosPorCpf.length);
-      
-      // Debug: mostrar estrutura de alguns pontos
-      const pontosExemplo = await Ponto.find().limit(2);
-      console.log('🔍 Estrutura de pontos de exemplo:', pontosExemplo.map(p => ({
-        id: p._id,
-        usuario: p.usuario,
-        cpf: p.cpf,
-        tipo: p.tipo,
-        dataHora: p.dataHora
-      })));
-    }
-    
-    res.json({
-      success: true,
-      pontos: pontos,
-      usuario: usuario,
-      total: pontos.length,
-      debug: {
-        usuarioEncontrado: true,
-        pontosEncontrados: pontos.length
-      }
-    });
-  } catch (error) {
-    console.error('❌ Erro ao buscar pontos do usuário:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao buscar pontos do usuário',
-      error: error.message
-    });
-  }
-});
-
-// ==================== PELA NOVA VERSÃO CORRIGIDA: ====================
-
 // Buscar pontos de um usuário específico (Admin) - ROTA CORRIGIDA
 app.get('/api/pontos/usuario/:cpf', verificarAdmin, async (req, res) => {
   try {
@@ -820,10 +742,16 @@ app.get('/api/pontos/usuario/:cpf', verificarAdmin, async (req, res) => {
   }
 });
 
-
 // ==================== MIDDLEWARE DE ERRO ====================
-// Middleware para rotas não encontradas
-app.use('*', (req, res) => {
+// IMPORTANTE: O middleware de rotas não encontradas deve vir DEPOIS de todas as rotas
+// MAS deve EXCLUIR as rotas do Let's Encrypt
+app.use('*', (req, res, next) => {
+  // Se for uma rota do Let's Encrypt, deixar passar
+  if (req.originalUrl.startsWith('/.well-known/acme-challenge/')) {
+    return next();
+  }
+  
+  // Para todas as outras rotas não encontradas
   res.status(404).json({
     success: false,
     message: `Rota ${req.originalUrl} não encontrada`,
@@ -850,8 +778,8 @@ app.listen(HTTP_PORT, '0.0.0.0', () => {
   console.log('| Desenvolvido por Leonardo do T.I |')
   console.log('==================================');
   console.log(`🟢 HTTP rodando em: http://0.0.0.0:${HTTP_PORT}`);
-  console.log(`🏠 Acesso local: http://192.168.88.22:${HTTP_PORT}`);
-  console.log(`🌐 Acesso externo: http://168.197.64.215`);
+  console.log(`🏠 Acesso local: http://192.168.88.163:${HTTP_PORT}`);
+  console.log(`🌐 Acesso externo: http://pontobmz.com`);
 });
 
 // Tentar iniciar servidor HTTPS (porta 3001)
@@ -869,8 +797,8 @@ try {
       console.log('==================================');
       console.log(`🟢 HTTPS rodando em: https://0.0.0.0:${HTTPS_PORT}`);
       console.log(`🏠 Acesso local: https://192.168.88.22:${HTTPS_PORT}`);
-      console.log(`🌐 Acesso externo: https://168.197.64.215`);
-      console.log(`🔑 Acesso ao painel administrativo: https://168.197.64.215/painel`);
+      console.log(`🌐 Acesso externo: https://pontobmz.com`);
+      console.log(`🔑 Acesso ao painel administrativo: https://pontobmz.com/painel`);
       console.log('🔐 Login Administrativo no painel: admin / Escritorio3116*!*!()');
       console.log('==================================');
     });
